@@ -5,6 +5,16 @@ docs_path = 'docs'
 asgen_path = 'asgen'
 classes_to_generate = ['CBasePlayer']
 
+if not os.path.exists('docs_path'):
+	if os.path.exists('asdocs.txt') and (os.path.exists('ASDocGenerator.exe') or os.path.exists('ASDocGenerator')):
+		print("Angelscript docs are missing. Generating them from the asdocs.txt file")
+		os.system('ASDocGenerator -i asdocs.txt -o docs')
+	else:
+		print("Angelscript docs are missing, and so are the files required to generate them.")
+		print("- Download or compile ASDocGenerator and place it in this folder")
+		print("- Run the game with the -as_outputdocs launch option to generate asdocs.txt, then place in this folder")
+		print("- Run this script again")
+
 Path(asgen_path).mkdir(parents=True, exist_ok=True)
 
 '''
