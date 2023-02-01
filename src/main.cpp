@@ -2,6 +2,7 @@
 #include "misc_utils.h"
 #include "meta_utils.h"
 #include "main.h"
+#include "CBasePlayer.h"
 
 // Description of plugin
 plugin_info_t Plugin_info = {
@@ -142,8 +143,24 @@ void* PvAllocEntPrivateData(edict_t* ent, int32 cb) {
 	RETURN_META_VALUE(MRES_IGNORED, NULL);
 }
 
+int lastVal = 0;
+
+void testPlayer() {
+	for (int i = 1; i <= gpGlobals->maxClients; i++) {
+		edict_t* ent = INDEXENT(i);
+
+		if (!isValidPlayer(ent)) {
+			continue;
+		}
+
+		CBasePlayer* plr = (CBasePlayer*)ent->pvPrivateData;
+		println("META %f %f %f", plr->m_vecFinalDest.x, plr->m_vecFinalDest.y, plr->m_vecFinalDest.z);
+	}
+}
+
 void PluginInit() {
 	g_engine_hooks.pfnPvAllocEntPrivateData = PvAllocEntPrivateData;
+	g_dll_hooks.pfnStartFrame = testPlayer;
 
 	REG_SVR_COMMAND("private_api_init", private_api_init);
 	REG_SVR_COMMAND("private_api_test", private_api_test);

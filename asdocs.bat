@@ -1,0 +1,1 @@
+ASDocGenerator.exe -i asdocs.txt -o docs

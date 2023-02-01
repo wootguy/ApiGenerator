@@ -10,6 +10,7 @@ set(SOURCE_FILES
 	src/meta_init.h src/meta_init.cpp
 	src/meta_utils.h src/meta_utils.cpp
 	src/misc_utils.h src/misc_utils.cpp
+	src/EHandle.h src/EHandle.cpp
 )
 
 include_directories(src)
@@ -19,6 +20,7 @@ include_directories(include/hlsdk/common)
 include_directories(include/hlsdk/dlls)
 include_directories(include/hlsdk/engine)
 include_directories(include/hlsdk/pm_shared)
+include_directories(include/sven)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 

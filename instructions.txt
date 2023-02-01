@@ -1,0 +1,11 @@
+Header files may become invalid when the game updates. Follow these instructions to update them.
+
+1) Download ASDocGenerator.exe from somewhere or compile it from the github source. Place  in this folder.
+2) Run the game with the "-as_outputdocs" launch option to generate asdocs.txt
+3) copy asdocs.txt to this folder and run asdocs.bat
+4) Run the python script. It will an asgen folder with code for testing class props.
+5) Compile/download the metamod plugin and install it
+6) Add the angelscript plugin
+7) Create the folder: svencoop/scripts/plugins/store/ApiGenerator
+8) Start a map and type ".apigen"
+9) Header files should be output to the the folder created in step 7!
