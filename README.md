@@ -58,11 +58,11 @@ So, it's safe to cast a CBasePlayer to a CBaseMonster for example. You can doubl
 The header files will likely become invalid when a new version of Sven Co-op is released, causing crashes for the plugins that use them. Follow these steps to generate new header files with the updated property offsets.
 
 1. Install [Metamod-p](https://github.com/wootguy/metamod-p/blob/master/README.md) and [Python](https://www.python.org/downloads/).
-1. [Download](https://github.com/wootguy/ApiGenerator/archive/refs/heads/master.zip) this project's source and extract to `Sven Co-op/svencoop_addon/scripts/plugins/ApiGenerator-master`.
-2. Run the game with the `-as_outputdocs` launch option to generate `asdocs.txt`. Move that file to the `ApiGenerator-master` folder.
-3. Run the python script. It will generate the angelscript docs and required code for the angelscript plugin.
-4. Compile the ApiGenerator metamod plugin and install it (See Compile Instructions section)
-5. Install the ApiGenerator angelscript plugin (see below)
+2. [Download](https://github.com/wootguy/ApiGenerator/archive/refs/heads/master.zip) this project's source and extract to `Sven Co-op/svencoop_addon/scripts/plugins/ApiGenerator-master`.
+3. Run the game with the `-as_outputdocs` launch option to generate `asdocs.txt`. Move that file to the `ApiGenerator-master` folder.
+4. Run the python script. It will generate the angelscript docs and required code for the angelscript plugin.
+5. Compile the ApiGenerator metamod plugin and install it (See Compile Instructions section)
+6. Install the ApiGenerator angelscript plugin (see below)
 ```
     "plugin"
     {
@@ -70,10 +70,10 @@ The header files will likely become invalid when a new version of Sven Co-op is 
         "script" "ApiGenerator-master/scripts/ApiGenerator"
     }
 ```
-6. Go to your `Sven Co-op/svencoop/scripts/plugins/store/` folder and create a folder named `ApiGenerator`
-7. Launch Sven Co-op, start any map, then type `developer 1; clear; .apigen` into the console.
-8. Header files should be output to the the folder created in step 7. If not, check the console for errors.
-9. Recompile your plugins using the new header files.
+7. Go to your `Sven Co-op/svencoop/scripts/plugins/store/` folder and create a folder named `ApiGenerator`
+8. Launch Sven Co-op, start any map, then type `developer 1; clear; .apigen` into the console.
+9. Header files should be output to the the folder created in step 7. If not, check the console for errors.
+10. Recompile your plugins using the new header files.
 
 # Compile Instructions
 Open a command prompt in the root folder of the project and follow instructions below to build the ApiGenerator metamod plugin.
