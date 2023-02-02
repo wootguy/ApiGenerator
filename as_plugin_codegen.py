@@ -2,10 +2,10 @@ import os
 from pathlib import Path
 
 docs_path = 'docs'
-asgen_path = 'asgen'
-classes_to_generate = ['CBasePlayer']
+asgen_path = 'scripts/generated_props'
+classes_to_generate = ['CBaseEntity', 'CBaseDelay', 'CBasePlayer']
 
-if not os.path.exists('docs_path'):
+if not os.path.exists(docs_path):
 	if os.path.exists('asdocs.txt') and (os.path.exists('ASDocGenerator.exe') or os.path.exists('ASDocGenerator')):
 		print("Angelscript docs are missing. Generating them from the asdocs.txt file")
 		os.system('ASDocGenerator -i asdocs.txt -o docs')
@@ -17,125 +17,92 @@ if not os.path.exists('docs_path'):
 
 Path(asgen_path).mkdir(parents=True, exist_ok=True)
 
-'''
-class CBasePlayerPv : BasePv {
-	CBasePlayer@ ent;
-
-	CBasePlayerPv() {}
-
-	CBasePlayerPv(CBasePlayer@ ent) {
-		super(ent);
-		className = "CBasePlayer";
-		@this.ent = @ent;
-		generatePrivateApi();
-	}
-	
-	void setValue(string f, TestValue v) {
-		if (f == "pev") @ent.pev = @v.pev;
-		else if (f == "m_fOverrideClass") ent.m_fOverrideClass = v.v8 != 0;
-	}
-	
-	TestValue getValue(string f) {
-		TestValue val;
-	
-		if (f == "pev") @val.pev = @ent.pev;
-		else if (f == "m_fOverrideClass") val.v8 = ent.m_fOverrideClass ? 1 : 0;
-		
-		return val;
-	}
-
-	void findOffsets() {
-		find_offset("pev", FIELD_ENTVARS);
-		find_offset("m_fOverrideClass", FIELD_BOOL);
-		find_offset("m_iClassSelection", FIELD_INT);
-		find_offset("m_flMaximumFadeWait", FIELD_FLT);
-	}
-}
-'''
-
 prop_code = {
 	'bool': {
 		'astype': 'FIELD_BOOL',
-		'setter': '<FIELD> = v.v8 != 0;',
-		'getter': 'v.v8 = <FIELD> ? 1 : 0;'
+		'setter': '<FIELD> = value.v8 != 0;',
+		'getter': 'return uint8(<FIELD> ? 1 : 0);'
 	},
 	'int8': {
 		'astype': 'FIELD_BYTE',
-		'setter': '<FIELD> = v.v8;',
-		'getter': 'v.v8 = <FIELD>;'
+		'setter': '<FIELD> = value.v8;',
+		'getter': 'return <FIELD>;'
 	},
 	'int': {
 		'astype': 'FIELD_INT',
-		'setter': '<FIELD> = v.v32;',
-		'getter': 'v.v32 = <FIELD>;'
+		'setter': '<FIELD> = value.v32;',
+		'getter': 'return <FIELD>;'
 	},
 	'uint': {
 		'astype': 'FIELD_UINT',
-		'setter': '<FIELD> = v.v32;',
-		'getter': 'v.v32 = <FIELD>;'
+		'setter': '<FIELD> = value.v32;',
+		'getter': 'return <FIELD>;'
 	},
 	'TOGGLE_STATE': {
 		'astype': 'FIELD_INT',
-		'setter': '<FIELD> = TOGGLE_STATE(v.v32);',
-		'getter': 'v.v32 = int(<FIELD>);'
+		'setter': '<FIELD> = TOGGLE_STATE(value.v32);',
+		'getter': 'return int(<FIELD>);'
 	},
 	'Activity': {
 		'astype': 'FIELD_INT',
-		'setter': '<FIELD> = Activity(v.v32);',
-		'getter': 'v.v32 = int(<FIELD>);'
+		'setter': '<FIELD> = Activity(value.v32);',
+		'getter': 'return int(<FIELD>);'
 	},
 	'MONSTERSTATE': {
 		'astype': 'FIELD_INT',
-		'setter': '<FIELD> = MONSTERSTATE(v.v32);',
-		'getter': 'v.v32 = int(<FIELD>);'
+		'setter': '<FIELD> = MONSTERSTATE(value.v32);',
+		'getter': 'return int(<FIELD>);'
 	},
 	'SCRIPTSTATE': {
 		'astype': 'FIELD_INT',
-		'setter': '<FIELD> = SCRIPTSTATE(v.v32);',
-		'getter': 'v.v32 = int(<FIELD>);'
+		'setter': '<FIELD> = SCRIPTSTATE(value.v32);',
+		'getter': 'return int(<FIELD>);'
 	},
 	'float': {
 		'astype': 'FIELD_FLT',
-		'setter': '<FIELD> = v.vf;',
-		'getter': 'v.vf = <FIELD>;'
+		'setter': '<FIELD> = value.vf;',
+		'getter': 'return <FIELD>;'
 	},
 	'Vector': {
 		'astype': 'FIELD_VEC3',
-		'setter': '<FIELD> = v.vec3;',
-		'getter': 'v.vec3 = <FIELD>;'
+		'setter': '<FIELD> = value.vec3;',
+		'getter': 'return <FIELD>;'
 	},
 	'string_t': {
 		'astype': 'FIELD_STR',
-		'setter': '<FIELD> = v.str;',
-		'getter': 'v.str = <FIELD>;'
+		'setter': '<FIELD> = value.str;',
+		'getter': 'return <FIELD>;'
 	},
 	'entvars_t@': {
 		'astype': 'FIELD_ENTVARS',
-		'setter': '@<FIELD> = @v.pev;',
-		'getter': '@v.pev = @<FIELD>;'
+		'setter': '@<FIELD> = @value.pev;',
+		'getter': 'return @<FIELD>;'
 	},
 	'EHandle': {
 		'astype': 'FIELD_EHANDLE',
-		'setter': '<FIELD> = v.ehandle;',
-		'getter': 'v.ehandle = <FIELD>;'
+		'setter': '<FIELD> = value.ehandle;',
+		'getter': 'return <FIELD>;'
 	},
 	'Schedule@': {
 		'astype': 'FIELD_SCHED',
-		'setter': '@<FIELD> = @v.sched;',
-		'getter': '@v.sched = @<FIELD>;'
+		'setter': '@<FIELD> = @value.sched;',
+		'getter': 'return @<FIELD>;'
 	},
 	'const int': {
 		'astype': 'READ_ONLY',
 		'setter': '<FIELD> = 0;',
-		'getter': 'v.v32 = <FIELD>;'
+		'getter': 'return <FIELD>;'
 	}
 }
 
 print("Generating angelscript plugin code for...")
 
+include_code = open(os.path.join(asgen_path, 'includes.as'), 'w')
+
 for class_to_gen in classes_to_generate:
 	print(class_to_gen)
 	asClass = class_to_gen + "Pv"
+	include_code.write("#include \"" + asClass + "\"\n")
 	
 	with open(os.path.join(docs_path, class_to_gen + '.htm')) as htm:
 		with open(os.path.join(asgen_path, asClass + '.as'), 'w') as code:
@@ -166,116 +133,48 @@ for class_to_gen in classes_to_generate:
 						desc = line[line.find("<td>")+len("<td>"):line.find("</td>")].replace('"', '\\"')
 						props[-1][2] = desc
 			
-			
+			'''
+			array<PvProp> CBasePlayerProps = {
+				PvProp(FIELD_INT, "test", "desc",
+					function(ent, value) { cast<CBasePlayer@>(ent).m_flDelay = value.vf; },
+					function(ent) { return cast<CBasePlayer@>(ent).m_flDelay; }
+				)
+			};
+			'''
 			
 			code.write("// This code is automatically generated.\n")
 			code.write("// Update the python script instead of editing this directly.\n\n")
 			
-			code.write("class " + asClass + " : BasePv {\n")
-			code.write("\t" + class_to_gen + "@ ent;\n\n")
-			
-			code.write("\t" + asClass + "() {}\n\n")
-			
-			code.write("\t" + asClass + "(" + class_to_gen + "@ ent) {\n")
-			code.write("\t\tsuper(ent);\n")
-			code.write("\t\tclassName = \"" + class_to_gen + "\";\n")
-			code.write("\t\t@this.ent = @ent;\n")
-			code.write("\t\tgeneratePrivateApi();\n")
-			code.write("\t}\n\n")
+			code.write("array<PvProp> " + asClass + " = {\n")
 			
 			#
 			# setValue
 			#
-			code.write("\tvoid setValue(string f, TestValue v) {\n")
 			
-			is_first_prop = True
-			for prop in props:
+			for idx, prop in enumerate(props):
 				prop_type = prop[0]
-				prop_name = prop[1]
-				
-				astype = prop_code[prop_type]['astype']
-				func = prop_code[prop_type]['setter'].replace("<FIELD>", "ent." + prop_name)
-				
-				code.write("\t\t")
-				
-				if astype == 'READ_ONLY':
-					code.write("//")
-				
-				code.write('if' if is_first_prop else 'else if')
-				
-				code.write(" (f == \"" + prop_name + "\") " + func + "\n")
-				
-				is_first_prop = False
-			
-			code.write("\t}\n\n")
-			
-			#
-			# getValue
-			#
-			code.write("\tTestValue getValue(string f) {\n")
-			code.write("\t\tTestValue v;\n\n")
-			
-			is_first_prop = True
-			for prop in props:
-				prop_type = prop[0]
-				prop_name = prop[1]
-				
-				astype = prop_code[prop_type]['astype']
-				func = prop_code[prop_type]['getter'].replace("<FIELD>", "ent." + prop_name)
-				
-				code.write("\t\t")
-				
-				if astype == 'READ_ONLY':
-					code.write("//")
-				
-				code.write('if' if is_first_prop else 'else if')
-				
-				code.write(" (f == \"" + prop_name + "\") " + func + "\n")
-				
-				is_first_prop = False
-					
-			code.write("\n\t\treturn v;\n")
-			code.write("\t}\n\n")
-			
-			#
-			# getFieldDescription
-			#
-			code.write("\tstring getFieldDescription(string f) {\n")
-			
-			is_first_prop = True
-			for prop in props:
 				prop_name = prop[1]
 				prop_desc = prop[2]
 				
-				code.write("\t\t")
-				code.write('if' if is_first_prop else 'else if')
-				code.write(" (f == \"" + prop_name + "\") return \"" + prop_desc + "\";\n")
-				
-				is_first_prop = False
-			
-			code.write("\n\t\treturn \"\";\n")
-			code.write("\t}\n\n")
-			
-			#
-			# findOffsets
-			#
-			code.write("\tvoid findOffsets() {\n")
-					
-			for prop in props:
-				prop_type = prop[0]
-				prop_name = prop[1]
+				ent_replace = "cast<" + class_to_gen + "@>(ent)"
 				
 				astype = prop_code[prop_type]['astype']
-				
-				code.write("\t\t")
+				getter = prop_code[prop_type]['getter'].replace("<FIELD>", ent_replace + "." + prop_name)
+				setter = prop_code[prop_type]['setter'].replace("<FIELD>", ent_replace + "." + prop_name)
 				
 				if astype == 'READ_ONLY':
-					code.write("//")
-				
-				code.write("find_offset(\"" + prop_name + "\", " + astype + ");\n")
+					code.write("\t// " + prop_type + " " + prop_name + "\n")
+					continue
 					
-			code.write("\t}\n")
+				code.write('\tPvProp("' + prop_name + '", ' + astype + ', "' + prop_desc + '",\n')
+				code.write("\t\tfunction(ent) { " + getter + " },\n")
+				code.write("\t\tfunction(ent, value) { " + setter + " }\n")
+				
+				if (idx < len(props)-1):
+					code.write("\t),\n")
+				else:
+					code.write("\t)\n")
 			
-			code.write("}\n")
+			code.write("};\n")
 
 print("\nDone!")
