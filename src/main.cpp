@@ -154,7 +154,7 @@ void testPlayer() {
 		}
 
 		CBasePlayer* plr = (CBasePlayer*)ent->pvPrivateData;
-		println("META %f %f %f", plr->m_vecFinalDest.x, plr->m_vecFinalDest.y, plr->m_vecFinalDest.z);
+		//println("META %f %f %f", plr->m_vecFinalDest.x, plr->m_vecFinalDest.y, plr->m_vecFinalDest.z);
 	}
 }
 

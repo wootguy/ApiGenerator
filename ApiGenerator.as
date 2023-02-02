@@ -5,13 +5,15 @@
 
 class PvData {
 	string name;
+	string desc;
 	int offset = -1;
 	int fieldType = -1;
 	
 	PvData() {}
 	
-	PvData(string name, int offset, int fieldType) {
+	PvData(string name, string desc, int offset, int fieldType) {
 		this.name = name;
+		this.desc = desc;
 		this.offset = offset;
 		this.fieldType = fieldType;
 	}
@@ -276,7 +278,8 @@ class BasePv {
 			}
 		}
 		
-		test_results.insertLast(PvData(fieldname, g_pv_offset, fieldtype));
+		string desc = getFieldDescription(fieldname);
+		test_results.insertLast(PvData(fieldname, desc, g_pv_offset, fieldtype));
 		
 		return true;
 	}
@@ -319,7 +322,12 @@ class BasePv {
 			} else if (gap < 0) {
 				println("ERROR: Field has a bad size: " + test_results[i-1].name + " " + gap);
 			}
-			f.Write("    " + getFieldString(test_results[i].fieldType) + " " + test_results[i].name + ";\n");
+			string comment = test_results[i].desc;
+			if (comment.Length() > 0) {
+				comment = " // " + comment;
+			}
+			
+			f.Write("    " + getFieldString(test_results[i].fieldType) + " " + test_results[i].name + ";" + comment + "\n");
 			offset = test_results[i].offset + getFieldSize(test_results[i].fieldType);
 		}
 		f.Write("};\n");
@@ -339,6 +347,8 @@ class BasePv {
 	}
 	
 	void findOffsets() {}
+	
+	string getFieldDescription(string f) { return ""; }
 }
 
 void generateApis(CBasePlayer@ plr) {

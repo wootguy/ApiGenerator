@@ -153,14 +153,18 @@ for class_to_gen in classes_to_generate:
 					
 				if '<tr>' in line:
 					next_td_is_prop = True
-				if '<td>' in line and next_td_is_prop:
-					next_td_is_prop = False
-					prop = line[line.find("<td>")+len("<td>"):line.find("</td>")].split()
-					
-					prop_type = " ".join(prop[0:-1])
-					prop_name = prop[-1]
-					
-					props.append([prop_type, prop_name])
+				if '<td>' in line:
+					if next_td_is_prop:
+						next_td_is_prop = False
+						prop = line[line.find("<td>")+len("<td>"):line.find("</td>")].split()
+						
+						prop_type = " ".join(prop[0:-1])
+						prop_name = prop[-1]
+						
+						props.append([prop_type, prop_name, ""])
+					elif len(props) > 0:
+						desc = line[line.find("<td>")+len("<td>"):line.find("</td>")].replace('"', '\\"')
+						props[-1][2] = desc
 			
 			
 			
@@ -179,7 +183,9 @@ for class_to_gen in classes_to_generate:
 			code.write("\t\tgeneratePrivateApi();\n")
 			code.write("\t}\n\n")
 			
-			
+			#
+			# setValue
+			#
 			code.write("\tvoid setValue(string f, TestValue v) {\n")
 			
 			is_first_prop = True
@@ -200,9 +206,12 @@ for class_to_gen in classes_to_generate:
 				code.write(" (f == \"" + prop_name + "\") " + func + "\n")
 				
 				is_first_prop = False
-					
+			
 			code.write("\t}\n\n")
 			
+			#
+			# getValue
+			#
 			code.write("\tTestValue getValue(string f) {\n")
 			code.write("\t\tTestValue v;\n\n")
 			
@@ -228,7 +237,28 @@ for class_to_gen in classes_to_generate:
 			code.write("\n\t\treturn v;\n")
 			code.write("\t}\n\n")
 			
+			#
+			# getFieldDescription
+			#
+			code.write("\tstring getFieldDescription(string f) {\n")
 			
+			is_first_prop = True
+			for prop in props:
+				prop_name = prop[1]
+				prop_desc = prop[2]
+				
+				code.write("\t\t")
+				code.write('if' if is_first_prop else 'else if')
+				code.write(" (f == \"" + prop_name + "\") return \"" + prop_desc + "\";\n")
+				
+				is_first_prop = False
+			
+			code.write("\n\t\treturn \"\";\n")
+			code.write("\t}\n\n")
+			
+			#
+			# findOffsets
+			#
 			code.write("\tvoid findOffsets() {\n")
 					
 			for prop in props:
@@ -245,6 +275,7 @@ for class_to_gen in classes_to_generate:
 				code.write("find_offset(\"" + prop_name + "\", " + astype + ");\n")
 					
 			code.write("\t}\n")
+			
 			code.write("}\n")
 
 print("\nDone!")
