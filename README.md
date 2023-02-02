@@ -81,7 +81,7 @@ Open a command prompt in the root folder of the project and follow instructions 
 Windows:
 ```
 mkdir build && cd build
-cmake ..
+cmake -A Win32 ..
 cmake --build . --config Release
 ```
 Linux:
