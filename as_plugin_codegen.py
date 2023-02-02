@@ -3,7 +3,29 @@ from pathlib import Path
 
 docs_path = 'docs'
 asgen_path = 'scripts/generated_props'
-classes_to_generate = ['CBaseEntity', 'CBaseDelay', 'CBasePlayer']
+classes_to_generate = [
+	'CBaseEntity',
+	'CBaseDelay',
+	'CBaseAnimating',
+	'CBaseToggle',
+	'CBasePlayerItem',
+	'CBasePlayerWeapon',
+	'CBasePlayerAmmo',
+	'CBaseMonster',
+	'CBasePlayer',
+	'CBaseTank',
+	'CBaseButton',
+	'CBaseDoor',
+	'CItemInventory',
+	'CItem',
+	'CGrenade',
+	'CCineMonster',
+	'CSprite',
+	'CPathTrack',
+	'CBeam',
+	'CLaser',
+	'CBaseTank'
+]
 
 if not os.path.exists(docs_path):
 	if os.path.exists('asdocs.txt') and (os.path.exists('ASDocGenerator.exe') or os.path.exists('ASDocGenerator')):
@@ -58,6 +80,11 @@ prop_code = {
 		'setter': '<FIELD> = SCRIPTSTATE(value.v32);',
 		'getter': 'return int(<FIELD>);'
 	},
+	'TANKBULLET': {
+		'astype': 'FIELD_INT',
+		'setter': '<FIELD> = TANKBULLET(value.v32);',
+		'getter': 'return int(<FIELD>);'
+	},
 	'float': {
 		'astype': 'FIELD_FLT',
 		'setter': '<FIELD> = value.vf;',
@@ -69,8 +96,13 @@ prop_code = {
 		'getter': 'return <FIELD>;'
 	},
 	'string_t': {
+		'astype': 'FIELD_STR_T',
+		'setter': '<FIELD> = value.str_t;',
+		'getter': 'return <FIELD>;'
+	},
+	'string': {
 		'astype': 'FIELD_STR',
-		'setter': '<FIELD> = value.str;',
+		'setter': '/* setting string values crashes the game??? */', # '<FIELD> = value.str;',
 		'getter': 'return <FIELD>;'
 	},
 	'entvars_t@': {
@@ -158,6 +190,10 @@ for class_to_gen in classes_to_generate:
 				
 				ent_replace = "cast<" + class_to_gen + "@>(ent)"
 				
+				if prop_type not in prop_code:
+					print("ERROR: New prop type encountered (%s %s). Update the prop_code in this script to use this property." % (prop_type, prop_name))
+					continue
+					
 				astype = prop_code[prop_type]['astype']
 				getter = prop_code[prop_type]['getter'].replace("<FIELD>", ent_replace + "." + prop_name)
 				setter = prop_code[prop_type]['setter'].replace("<FIELD>", ent_replace + "." + prop_name)

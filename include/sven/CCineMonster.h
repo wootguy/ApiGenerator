@@ -2,8 +2,8 @@
 // Prefer updating the generator code instead of editing this directly.
 // "u[]" variables are unknown data.
 
-// Example entity: player
-class CBasePlayer {
+// Example entity: scripted_sequence
+class CCineMonster {
 public:
     byte u0[4];
     entvars_t* pev; // Entity variables
@@ -96,7 +96,9 @@ public:
     int m_afMoveShootCap; // tells us what a monster can/can't do, while moving.
     float m_flNextAttack; // cannot attack again until this time.
     int m_bitsDamageType; // what types of damage has monster (player) taken.
-    byte u15[16];
+    byte u15[8];
+    float m_lastDamageAmount; // how much damage did monster (player) last take.
+    float m_tbdPrev; // Time-based damage timer.
     entvars_t* pevTimeBasedInflictor; // Time based damage inflictor.
     int m_failSchedule; // Schedule type to choose if current schedule fails.
     float m_flHungryTime; // Time based damage inflictor.
@@ -112,11 +114,13 @@ public:
     float m_useTime; // Don't allow +USE until this time.
     byte u17[48];
     string_t m_FormattedName; // The formatted name.<br>For better name outputs. E.g. "Alien Slave" rather than "alien_slave".
-    byte u18[21];
+    byte u18[20];
+    byte m_chTextureType; // Current texture type.<br>See TextureType enum.
     bool m_fCanFearCreatures; // Whether this monster can fear creatures.
     byte u19[26];
     float m_flAutomaticAttackTime; // How long an npc will attempt to fire full auto.
-    byte u20[20];
+    float m_flFallVelocity; // Current fall speed.
+    byte u20[16];
     EHandle m_hGuardEnt; // Monster will guard this entity and turn down follow requests.
     string_t m_iszGuardEntName; // Guard entity name.
     byte u21[84];
@@ -130,57 +134,17 @@ public:
     float m_flEffectFriction; // Movement friction modifier (%)
     float m_flEffectSpeed; // Movement speed modifier (%)
     float m_flEffectDamage; // Damage modifier (%)
-    byte u22[48];
-    float m_flNextClientCommandTime; // The next time this player can execute a vocal client command
-    byte u23[4];
-    float m_flTimeOfLastDeath; // Time of last death.
-    float m_flRespawnDelayTime; // Gets added to the standard respawn delay time when killed, reset in spawn to 0.0.
-    EHandle m_hSpawnPoint; // Pointer for a spawn point to use.
+    byte u22[12];
+    string_t m_iszIdle; // Te idle animation name.
+    string_t m_iszPlay; // The play animation name.
+    string_t m_iszEntity; // The target entity name.
+    byte u23[8];
+    float m_flRadius; // The radius to search in.
+    float m_flRepeat; // How much time has to pass before the scripted sequence can repeat.
+    int m_iDelay; // Delay before execution.
+    float m_startTime; // When to start the script.
     byte u24[12];
-    float m_flLastMove; // When did this player move or tried to move (with the IN_ keys) ?
-    byte u25[16];
-    int m_iWeaponVolume; // How loud the player's weapon is right now.
-    int m_iExtraSoundTypes; // Additional classification for this weapon's sound.
-    int m_iWeaponFlash; // Brightness of the weapon flash.
-    float m_flStopExtraSoundTime; // When to stop the m_iExtraSoundTypes sounds.
-    byte u26[4];
-    int m_iFlashBattery; // Player flashlight amount. 0 &lt;= amount &lt;= 100.
-    int m_afButtonLast;
-    int m_afButtonPressed;
-    int m_afButtonReleased;
-    byte u27[16];
-    float m_flFallVelocity; // Current fall speed.
-    byte u28[32];
-    unsigned int m_afPhysicsFlags;
-    byte u29[12];
-    float m_flSwimTime; // How long this player has been underwater.
-    byte u30[296];
-    float m_lastDamageAmount; // how much damage did monster (player) last take.
-    float m_tbdPrev; // Time-based damage timer.
-    byte u31[32];
-    byte m_chTextureType; // Current texture type.<br>See TextureType enum.
-    byte u32[3];
-    int m_iDrownDmg; // Track drowning damage taken.
-    int m_iDrownRestored; // Track drowning damage restored.
-    byte u33[8];
-    int m_iTrain; // Train control position
-    byte u34[16];
-    EHandle m_hTank; // the tank which the player is currently controlling, NULL if no tank
-    float m_fDeadTime; // the time at which the player died
-    byte u35[1];
-    bool m_fLongJump; // Does this player have the longjump module?
-    byte u36[22];
-    int m_iFOV; // Field of view.
-    byte u37[48];
-    int m_iHideHUD; // The players hud weapon info is to be hidden.
-    byte u38[88];
-    EHandle m_hActiveItem; // The active item.
-    byte u39[16];
-    int m_rgAmmo[64]; // Player ammo amount
-    byte u40[272];
-    int m_iDeaths; // get player death count.
-    byte u41[12];
-    float m_flNextDecalTime; // Next time this player can spray a decal.
-    byte u42[1896];
-    int m_iPlayerClass; // The player's class type.
+    bool m_interruptable; // Whether this scripted sequence can be interrupted.
+    byte u25[3];
+    float m_flMoveToRadius; // When in radius, script is done.
 };

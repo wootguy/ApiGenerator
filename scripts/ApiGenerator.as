@@ -33,6 +33,11 @@ void PluginInit() {
 	@apiResultCmd = @CConCommand( "private_api_result", "metamod response to a private api test", @private_api_result );
 }
 
+void MapInit() {
+	g_Game.PrecacheOther("func_door");
+	g_Game.PrecacheOther("item_inventory");
+}
+
 uint64 g_pv_result = 0;
 float g_pv_result_f = 0;
 Vector g_pv_result_vec3 = Vector(0,0,0);
@@ -40,6 +45,7 @@ int g_pv_offset = -1;
 int g_pv_size = -1;
 
 int g_arr_idx = 0; // array index to test
+array<string> written_headers;
 
 void private_api_result( const CCommand@ args ) {	
 	CBasePlayer@ plr = g_ConCommandSystem.GetCurrentPlayer();
@@ -76,6 +82,7 @@ enum field_types {
 	FIELD_EHANDLE,
 	FIELD_INT64,
 	FIELD_VEC3,
+	FIELD_STR_T,
 	FIELD_STR,
 	FIELD_SCHED,
 }
@@ -87,7 +94,8 @@ class TestValue {
 	uint64 v64;
 	float vf;
 	Vector vec3;
-	string_t str;
+	string_t str_t;
+	string str;
 	entvars_t@ pev;
 	EHandle ehandle;
 	Schedule@ sched;
@@ -104,7 +112,8 @@ class TestValue {
 	TestValue(uint64 v) { v64 = v; }
 	TestValue(float v) { vf = v; }
 	TestValue(Vector v) { vec3 = v; }
-	TestValue(string_t v) { str = v; }
+	TestValue(string_t v) { str_t = v; }
+	TestValue(string v) { str = v; }
 	TestValue(entvars_t@ v) { @pev = @v; }
 	TestValue(EHandle v) { ehandle = v; }
 	TestValue(Schedule@ v) { @sched = @v; }
@@ -117,6 +126,7 @@ class TestValue {
 			v64 = 0x12345678ABCDEF01;
 			vf = 1234.567f;
 			vec3 = Vector(1234.567f, 2235.567f, 3234.567f);
+			str_t = "1234567890";
 			str = "1234567890";
 			@pev = @g_EntityFuncs.Instance(0).pev;
 			ehandle = EHandle(g_EntityFuncs.Instance(0));
@@ -169,6 +179,7 @@ class PvProp {
 			case FIELD_EHANDLE: return 8;
 			case FIELD_INT64: return 8;
 			case FIELD_VEC3: return 4*3;
+			case FIELD_STR_T: return 4;
 			case FIELD_STR: return 4;
 			case FIELD_SCHED: return 4;
 		}
@@ -188,6 +199,7 @@ class PvProp {
 			case FIELD_EHANDLE: return "EHandle";
 			case FIELD_INT64: return "uint64_t";
 			case FIELD_VEC3: return "vec3_t";
+			case FIELD_STR_T: return "string_t";
 			case FIELD_STR: return "string_t";
 			case FIELD_SCHED: return "void*";
 		}
@@ -206,6 +218,10 @@ class PvProp {
 	}
 }
 
+void failsafe_ent_remove(EHandle h_ent) {
+	g_EntityFuncs.Remove(h_ent);
+}
+
 class BasePv {
 	CBaseEntity@ ent;
 	int test_index;
@@ -219,11 +235,28 @@ class BasePv {
 	BasePv() {}
 	
 	BasePv(CBaseEntity@ ent, string className, array<PvProp>@ props, array<PvProp>@ props_special) {
-		this.className = className;
+		init(ent, className, props, props_special);
+	}
+	
+	BasePv(string test_ent_classname, string className, array<PvProp>@ props, array<PvProp>@ props_special) {
+		CBaseEntity@ testEnt = g_EntityFuncs.CreateEntity(test_ent_classname, null, true);
+		g_Scheduler.SetTimeout("failsafe_ent_remove", 0.0f, EHandle(testEnt));
 		
+		if (testEnt !is null) {
+			init(testEnt, className, props, props_special);
+		} else {
+			println("Failed to create test entity for class " + className);
+		}
+		
+		g_EntityFuncs.Remove(testEnt);
+	}
+	
+	void init(CBaseEntity@ ent, string className, array<PvProp>@ props, array<PvProp>@ props_special) {
 		println("\nGenerating API for " + className);
 		
-		@this.ent = @ent;		
+		@this.ent = @ent;
+		test_index = this.ent.entindex();
+		this.className = className;
 		this.props = props;
 		
 		if (props_special !is null) {
@@ -232,7 +265,6 @@ class BasePv {
 			}
 		}
 		
-		test_index = this.ent.entindex();
 		generatePrivateApi();
 	}
 	
@@ -351,9 +383,7 @@ class BasePv {
 		f.Write("// Prefer updating the generator code instead of editing this directly.\n");
 		f.Write("// \"u[]\" variables are unknown data.\n\n");
 		
-		f.Write("#include \"EHandle.h\"\n\n");
-		
-		f.Write("// pev.classname = " + ent.pev.classname + "\n");
+		f.Write("// Example entity: " + ent.pev.classname + "\n");
 		f.Write("class " + className + " {\n");
 		f.Write("public:\n");
 		
@@ -383,6 +413,8 @@ class BasePv {
 		}
 		f.Write("};\n");
 		f.Close();
+		
+		written_headers.insertLast(className + ".h");
 	}
 	
 	void generatePrivateApi() {
@@ -406,10 +438,49 @@ class BasePv {
 	}
 }
 
+
 void generateApis(CBasePlayer@ plr) {
+	written_headers.resize(0);
+
 	BasePv(plr, "CBaseEntity", CBaseEntityPv, null);
 	BasePv(plr, "CBaseDelay", CBaseDelayPv, null);
+	BasePv(plr, "CBaseAnimating", CBaseAnimatingPv, null);
+	BasePv(plr, "CBaseToggle", CBaseTogglePv, null);
+	BasePv("weapon_crowbar", "CBasePlayerItem", CBasePlayerItemPv, null);
+	BasePv("weapon_crowbar", "CBasePlayerWeapon", CBasePlayerWeaponPv, null);
+	BasePv("ammo_357", "CBasePlayerAmmo", CBasePlayerAmmoPv, null);
 	BasePv(plr, "CBasePlayer", CBasePlayerPv, CBasePlayerPv_Special);
+	BasePv(plr, "CBaseMonster", CBaseMonsterPv, null);
+	BasePv("func_tank", "CBaseTank", CBaseTankPv, null);
+	BasePv("func_button", "CBaseButton", CBaseButtonPv, null);
+	BasePv("func_door", "CBaseDoor", CBaseDoorPv, null);
+	BasePv("item_inventory", "CItemInventory", CItemInventoryPv, null);
+	BasePv("item_battery", "CItem", CItemPv, null);
+	BasePv("grenade", "CGrenade", CGrenadePv, null);
+	BasePv("scripted_sequence", "CCineMonster", CCineMonsterPv, null);
+	BasePv("path_track", "CPathTrack", CPathTrackPv, null);
+	BasePv("env_beam", "CBeam", CBeamPv, null);
+	BasePv("env_laser", "CLaser", CLaserPv, null);
+	
+	string outputFile = "scripts/plugins/store/ApiGenerator/private_api.h";
+	File@ f = g_FileSystem.OpenFile( outputFile, OpenFile::WRITE);
+	
+	if( f is null || !f.IsOpen() ) {
+		println("Failed to open file for writing: " + outputFile);
+		println("Create the 'ApiGenerator' folder if it doesn't exist.");
+		return;
+	}
+	
+	f.Write("// This code was automatically generated by the ApiGenerator plugin.\n\n");
+	
+	f.Write("#include \"EHandle.h\"\n");
+	for (uint i = 0; i <	written_headers.size(); i++) {
+		f.Write("#include \"" + written_headers[i] + "\"\n");
+	}
+	
+	f.Close();
+	
+	println("\nFinished writing private APIs for " + written_headers.size() + " classes.");
 }
 
 void apiTestLoop(EHandle h_plr) {
@@ -418,6 +489,10 @@ void apiTestLoop(EHandle h_plr) {
 	if (plr is null) {
 		return;
 	}
+	
+	//CItemInventory@ testEnt = cast<CItemInventory@>(g_EntityFuncs.CreateEntity("item_inventory", null, true));
+	//testEnt.m_szDisplayName = "test";
+	//g_EntityFuncs.Remove(testEnt);
 }
 
 void apiTest( const CCommand@ args ) {

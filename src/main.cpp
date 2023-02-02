@@ -2,7 +2,7 @@
 #include "misc_utils.h"
 #include "meta_utils.h"
 #include "main.h"
-#include "CBasePlayer.h"
+#include "private_api.h"
 
 // Description of plugin
 plugin_info_t Plugin_info = {
@@ -139,7 +139,7 @@ void private_api_test() {
 
 void* PvAllocEntPrivateData(edict_t* ent, int32 cb) {
 	pvSizes[ENTINDEX(ent)] = cb;
-	println("Alloc private ent %d (%d bytes)", ENTINDEX(ent), cb);
+	//println("Alloc private ent %d (%d bytes)", ENTINDEX(ent), cb);
 	RETURN_META_VALUE(MRES_IGNORED, NULL);
 }
 
