@@ -2,7 +2,7 @@
 // Prefer updating the generator code instead of editing this directly.
 // "u[]" variables are unknown data.
 
-// Example entity: player
+// Example entity: trigger_relay
 class CBaseDelay {
 public:
     byte u0[4];

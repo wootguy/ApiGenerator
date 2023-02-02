@@ -2,7 +2,7 @@
 // Prefer updating the generator code instead of editing this directly.
 // "u[]" variables are unknown data.
 
-// Example entity: player
+// Example entity: func_door
 class CBaseToggle {
 public:
     byte u0[4];
