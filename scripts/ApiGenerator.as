@@ -257,15 +257,15 @@ void generateApis(CBasePlayer@ plr) {
 			PvFinder(plr, "CBaseAnimating", CBaseAnimatingPv, null);
 				PvFinder("func_door", "CBaseToggle", CBaseTogglePv, null);
 					PvFinder("func_button", "CBaseButton", CBaseButtonPv, null);
-				PvFinder("func_door", "CBaseDoor", CBaseDoorPv, null);
-				PvFinder(plr, "CBaseMonster", CBaseMonsterPv, null);
-					PvFinder(plr, "CBasePlayer", CBasePlayerPv, CBasePlayerPv_Special);
-					PvFinder("scripted_sequence", "CCineMonster", CCineMonsterPv, null);
-					PvFinder("grenade", "CGrenade", CGrenadePv, null);
-				
-		PvFinder("weapon_crowbar", "CBasePlayerItem", CBasePlayerItemPv, null);
-			PvFinder("weapon_crowbar", "CBasePlayerWeapon", CBasePlayerWeaponPv, null);
-			PvFinder("ammo_357", "CBasePlayerAmmo", CBasePlayerAmmoPv, null);
+					PvFinder("func_door", "CBaseDoor", CBaseDoorPv, null);
+					PvFinder(plr, "CBaseMonster", CBaseMonsterPv, null);
+						PvFinder(plr, "CBasePlayer", CBasePlayerPv, CBasePlayerPv_Special);
+						PvFinder("scripted_sequence", "CCineMonster", CCineMonsterPv, null);
+						PvFinder("grenade", "CGrenade", CGrenadePv, null);
+						
+				PvFinder("weapon_crowbar", "CBasePlayerItem", CBasePlayerItemPv, null);
+					PvFinder("weapon_crowbar", "CBasePlayerWeapon", CBasePlayerWeaponPv, null);
+					PvFinder("ammo_357", "CBasePlayerAmmo", CBasePlayerAmmoPv, null);
 			
 		PvFinder("func_tank", "CBaseTank", CBaseTankPv, null);
 		PvFinder("item_inventory", "CItemInventory", CItemInventoryPv, null);
