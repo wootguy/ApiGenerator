@@ -1,5 +1,5 @@
 # ApiGenerator
-This is a combination of server plugins that reverse engineers the entity classes in Sven Co-op. The result is a set of header files that you can use for developing metamod plugins that use game-specific entity data.
+This is a combination of server plugins that reverse engineers the entity classes in Sven Co-op. The result is a set of header files that you can use for developing metamod plugins that need game-specific entity data.
 
 How it works:
 1. A list of private properties is created from the angelscript documentation.
@@ -7,9 +7,11 @@ How it works:
 3. Metamod scans for any changes in the entity's `pvPrivateData` field, then returns a byte offset of where it thinks the field is located.
 4. Angelscript validates what metamod thinks, orders the located fields by offset, then fills in any gaps with byte arrays.
 
-Class methods are not included, but a lot of the code might be similar to the [HLSDK](https://github.com/ValveSoftware/halflife). Some classes that you can see in the [angelscript docs](https://baso88.github.io/SC_AngelScript/docs/Classes.htm) are excluded here because they are duplicates of their parent class (e.g. CGrenade and CBaseMonster have identical properties).
+Class methods are not included, but a lot of the code might be similar to the [HLSDK](https://github.com/ValveSoftware/halflife).
 
-Class inheritance isn't perfect. CBasePlayer should inherit from CBaseMonster, but the fields from CBaseMonster are spread apart in CBasePlayer, making it difficult to define header files where all the fields are at the correct offsets.
+Class inheritance isn't perfect. CBasePlayer should inherit from CBaseMonster, but the fields from CBaseMonster are spread apart in CBasePlayer, making it difficult to define header files where all the fields are at the correct offsets. 
+
+Some classes that you can see in the [angelscript docs](https://baso88.github.io/SC_AngelScript/docs/Classes.htm) are excluded here because they are duplicates of their parent class (e.g. CGrenade and CBaseMonster have identical properties).
 
 # Setup for plugin developers
 1. Copy the [header files](https://github.com/wootguy/ApiGenerator/tree/master/include/sven) to your project.
