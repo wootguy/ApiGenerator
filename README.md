@@ -38,7 +38,9 @@ void kill_this_player(edict_t* player_edict) {
 ```
 
 # Updating headers
-The header files will likely become invalid when a new version of Sven Co-op is released, causing crashes for the plugins that use them. Follow these steps to generate new header files with the updated property offsets.
+The header files will likely become invalid when a new version of Sven Co-op is released, causing crashes for the plugins that use them. Follow the steps below to generate new header files with the updated property offsets.
+
+If any classes have been added/removed/renamed in the angelscript API, then you'll need to update this [python class list](https://github.com/wootguy/ApiGenerator/blob/16c18d244acaf5b1e04e893788c2c2b0037ecc56/as_plugin_codegen.py#L6-L28) and [this plugin code](https://github.com/wootguy/ApiGenerator/blob/16c18d244acaf5b1e04e893788c2c2b0037ecc56/scripts/ApiGenerator.as#L251-L275). New field types (e.g. uint64) will need code updates [here](https://github.com/wootguy/ApiGenerator/blob/16c18d244acaf5b1e04e893788c2c2b0037ecc56/as_plugin_codegen.py#L42-L128), [here](https://github.com/wootguy/ApiGenerator/blob/16c18d244acaf5b1e04e893788c2c2b0037ecc56/scripts/ApiGenerator.as#L5-L19), [here](https://github.com/wootguy/ApiGenerator/blob/16c18d244acaf5b1e04e893788c2c2b0037ecc56/scripts/ApiGenerator.as#L60-L106) and [here](https://github.com/wootguy/ApiGenerator/blob/16c18d244acaf5b1e04e893788c2c2b0037ecc56/scripts/ApiGenerator.as#L137-L187).
 
 1. Install [Metamod-p](https://github.com/wootguy/metamod-p/blob/master/README.md) and [Python](https://www.python.org/downloads/).
 2. [Download](https://github.com/wootguy/ApiGenerator/archive/refs/heads/master.zip) this project's source and extract to `Sven Co-op/svencoop_addon/scripts/plugins/ApiGenerator-master`.
