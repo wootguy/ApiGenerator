@@ -15,7 +15,7 @@ public:
 	}
 
 	EHandle(CBaseEntity* ent) {
-		m_pent = ent ? g_engfuncs.pfnFindEntityByVars(ent->pev) : NULL;
+		m_pent = ent ? ent->pev->pContainingEntity : NULL;
 		m_serialnumber = ent ? m_pent->serialnumber : -1;
 	}
 
