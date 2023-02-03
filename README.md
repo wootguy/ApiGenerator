@@ -4,12 +4,10 @@ This is a combination of server plugins that reverse engineers the entity classe
 How it works:
 1. A list of private properties is created from the angelscript documentation.
 2. The angelscript plugin changes a private property value in an entity, then calls a function in the metamod plugin.
-3. Metamod scans for any changes in the entity's `pvPrivateData` field, then returns a byte offset of where it thinks the field is located.
+3. Metamod scans for any changes in the edict's `pvPrivateData`, then returns a byte offset of where it thinks the private field is located.
 4. Angelscript validates what metamod thinks, orders the located fields by offset, then fills in any gaps with byte arrays.
 
 Class methods are not included, but a lot of the code might be similar to the [HLSDK](https://github.com/ValveSoftware/halflife).
-
-Class inheritance isn't perfect. CBasePlayer should inherit from CBaseMonster, but the fields from CBaseMonster are spread apart in CBasePlayer, making it difficult to define header files where all the fields are at the correct offsets. 
 
 Some classes that you can see in the [angelscript docs](https://baso88.github.io/SC_AngelScript/docs/Classes.htm) are excluded here because they are duplicates of their parent class (e.g. CGrenade and CBaseMonster have identical properties).
 

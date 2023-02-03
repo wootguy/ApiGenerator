@@ -40,12 +40,14 @@ class PvData {
 class ReversedData {
 	string cname;
 	array<PvData> results;
+	int childFields; // fields that are not duplicated in the base class
 	
 	ReversedData() {}
 	
-	ReversedData(string cname, array<PvData> results) {
+	ReversedData(string cname, array<PvData> results, int childFields) {
 		this.cname = cname;
 		this.results = results;
+		this.childFields = childFields;
 	}
 	
 	int getClassSize() {

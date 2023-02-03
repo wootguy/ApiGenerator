@@ -6,133 +6,60 @@
 // "u[]" variables are unknown data.
 
 // Example entity: player
-class CBasePlayer : public CBaseToggle {
+class CBasePlayer : public CBaseMonster {
 public:
-    byte u6_0[8];
-    EHandle m_hEnemy; // the entity that the monster is fighting.
-    EHandle m_hTargetEnt; // the entity that the monster is trying to reach.
-    byte u6_1[8];
-    EHandle m_hTargetTank; // Target tank to control.
-    byte u6_2[80];
-    float m_flFieldOfView; // width of monster's field of view ( dot product ).
-    float m_flWaitFinished; // if we're told to wait, this is the time that the wait will be over.
-    float m_flMoveWaitFinished; // if we're told to wait before moving, this is the time that the wait will be over.
-    int m_Activity; // what the monster is doing (animation).
-    int m_IdealActivity; // monster should switch to this activity.
-    int m_GaitActivity; // gaitsequence.
-    int m_LastHitGroup; // the last body region that took damage.
-    int m_MonsterState; // monster's current state.
-    int m_IdealMonsterState; // monster should change to this state.
-    int m_iTaskStatus; // Task status.
-    void* m_pSchedule; // Current schedule.
-    void* m_pScheduleSaved; // For land_on_ground schedules (remember last schedule and continue).
-    int m_iScheduleIndex; // Schedule index.
-    byte u6_3[416];
-    int m_movementGoal; // Goal that defines route.
-    int m_iRouteIndex; // Index into m_Route[].
-    float m_moveWaitTime; // How long I should wait for something to move.
-    float m_moveradius; // Minimum radius.
-    vec3_t m_vecMoveGoal; // Kept around for node graph moves, so we know our ultimate goal.
-    int m_movementActivity; // When moving, set this activity.
-    int m_iAudibleList; // first index of a linked list of sounds that the monster can hear.
-    int m_afSoundTypes; // Sound types that can be heard.
-    vec3_t m_vecLastPosition; // monster sometimes wants to return to where it started after an operation..
-    int m_iHintNode; // this is the hint node that the monster is moving towards or performing active idle on..
-    int m_afMemory; // Monster memory.
-    int m_bloodColor; // color of blood particles.
-    int m_iMaxHealth; // keeps track of monster's maximum health value (for re-healing, etc).
-    vec3_t m_vecEnemyLKP; // last known position of enemy. (enemy's origin).
-    int m_cAmmoLoaded; // how much ammo is in the weapon (used to trigger reload anim sequences).
-    int m_afCapability; // tells us what a monster can/can't do.
-    int m_afMoveShootCap; // tells us what a monster can/can't do, while moving.
-    float m_flNextAttack; // cannot attack again until this time.
-    int m_bitsDamageType; // what types of damage has monster (player) taken.
-    byte u6_4[16];
-    entvars_t* pevTimeBasedInflictor; // Time based damage inflictor.
-    int m_failSchedule; // Schedule type to choose if current schedule fails.
-    float m_flHungryTime; // Time based damage inflictor.
-    float m_flDistTooFar; // if enemy farther away than this, bits_COND_ENEMY_TOOFAR set in CheckEnemy.
-    float m_flDistLook; // distance monster sees (Default 2048).
-    int m_iTriggerCondition; // for scripted AI, this is the condition that will cause the activation of the monster's TriggerTarget.
-    string_t m_iszTriggerTarget; // Name of target that should be fired.
-    vec3_t m_HackedGunPos; // HACK until we can query end of gun.
-    byte u6_5[8];
-    int m_scriptState; // internal cinematic state.
-    EHandle m_hCine; // Cinematic entity.
-    EHandle m_hCineBlocker; // Entity that is blocking cinematic execution.
-    float m_useTime; // Don't allow +USE until this time.
-    byte u6_6[48];
-    string_t m_FormattedName; // The formatted name.<br>For better name outputs. E.g. "Alien Slave" rather than "alien_slave".
-    byte u6_7[21];
-    bool m_fCanFearCreatures; // Whether this monster can fear creatures.
-    byte u6_8[26];
-    float m_flAutomaticAttackTime; // How long an npc will attempt to fire full auto.
-    byte u6_9[20];
-    EHandle m_hGuardEnt; // Monster will guard this entity and turn down follow requests.
-    string_t m_iszGuardEntName; // Guard entity name.
-    byte u6_10[84];
-    vec3_t m_vecEffectGlowColor; // Glow shell.
-    int m_iEffectBlockWeapons; // Monster can't use weapons.
-    int m_iEffectInvulnerable; // is invulnerable (god mode)
-    int m_iEffectInvisible; // is invisible (render + non-targetable)
-    int m_iEffectNonSolid; // is non-solid
-    float m_flEffectRespiration; // Extra/less breathing time underwater in seconds
-    float m_flEffectGravity; // Gravity modifier (%)
-    float m_flEffectFriction; // Movement friction modifier (%)
-    float m_flEffectSpeed; // Movement speed modifier (%)
-    float m_flEffectDamage; // Damage modifier (%)
-    byte u6_11[48];
+    byte u6_0[48];
     float m_flNextClientCommandTime; // The next time this player can execute a vocal client command
-    byte u6_12[4];
+    byte u6_1[4];
     float m_flTimeOfLastDeath; // Time of last death.
     float m_flRespawnDelayTime; // Gets added to the standard respawn delay time when killed, reset in spawn to 0.0.
     EHandle m_hSpawnPoint; // Pointer for a spawn point to use.
-    byte u6_13[12];
+    byte u6_2[12];
     float m_flLastMove; // When did this player move or tried to move (with the IN_ keys) ?
-    byte u6_14[16];
+    byte u6_3[16];
     int m_iWeaponVolume; // How loud the player's weapon is right now.
     int m_iExtraSoundTypes; // Additional classification for this weapon's sound.
     int m_iWeaponFlash; // Brightness of the weapon flash.
     float m_flStopExtraSoundTime; // When to stop the m_iExtraSoundTypes sounds.
-    byte u6_15[4];
+    byte u6_4[4];
     int m_iFlashBattery; // Player flashlight amount. 0 &lt;= amount &lt;= 100.
     int m_afButtonLast;
     int m_afButtonPressed;
     int m_afButtonReleased;
-    byte u6_16[16];
+    byte u6_5[16];
     float m_flFallVelocity; // Current fall speed.
-    byte u6_17[32];
+    byte u6_6[32];
     unsigned int m_afPhysicsFlags;
-    byte u6_18[12];
+    byte u6_7[12];
     float m_flSwimTime; // How long this player has been underwater.
-    byte u6_19[296];
+    byte u6_8[296];
     float m_lastDamageAmount; // how much damage did monster (player) last take.
     float m_tbdPrev; // Time-based damage timer.
-    byte u6_20[32];
+    byte u6_9[32];
     byte m_chTextureType; // Current texture type.<br>See TextureType enum.
-    byte u6_21[3];
+    byte u6_10[3];
     int m_iDrownDmg; // Track drowning damage taken.
     int m_iDrownRestored; // Track drowning damage restored.
-    byte u6_22[8];
+    byte u6_11[8];
     int m_iTrain; // Train control position
-    byte u6_23[16];
+    byte u6_12[16];
     EHandle m_hTank; // the tank which the player is currently controlling, NULL if no tank
     float m_fDeadTime; // the time at which the player died
-    byte u6_24[1];
+    byte u6_13[1];
     bool m_fLongJump; // Does this player have the longjump module?
-    byte u6_25[22];
+    byte u6_14[22];
     int m_iFOV; // Field of view.
-    byte u6_26[48];
+    byte u6_15[48];
     int m_iHideHUD; // The players hud weapon info is to be hidden.
-    byte u6_27[88];
+    byte u6_16[88];
     EHandle m_hActiveItem; // The active item.
-    byte u6_28[16];
+    byte u6_17[16];
     int m_rgAmmo[64]; // Player ammo amount
-    byte u6_29[272];
+    byte u6_18[272];
     int m_iDeaths; // get player death count.
-    byte u6_30[12];
+    byte u6_19[12];
     float m_flNextDecalTime; // Next time this player can spray a decal.
-    byte u6_31[1896];
+    byte u6_20[1896];
     int m_iPlayerClass; // The player's class type.
 };
 #pragma pack(pop)
