@@ -154,7 +154,11 @@ void testPlayer() {
 		}
 
 		CBasePlayer* plr = (CBasePlayer*)ent->pvPrivateData;
-		//println("META %f %f %f", plr->m_vecFinalDest.x, plr->m_vecFinalDest.y, plr->m_vecFinalDest.z);
+		//CBaseAnimating* anim = (CBaseAnimating*)ent->pvPrivateData;
+		//EHandle test = EHandle(plr);
+		//CBasePlayer* testent = (CBasePlayer*)test.GetEntity();
+
+		//println("BOKEAY %d", testent->m_iFOV);
 	}
 }
 

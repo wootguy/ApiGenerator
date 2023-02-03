@@ -9,6 +9,8 @@ How it works:
 
 Class methods are not included, but a lot of the code might be similar to the [HLSDK](https://github.com/ValveSoftware/halflife). Some classes that you can see in the [angelscript docs](https://baso88.github.io/SC_AngelScript/docs/Classes.htm) are excluded here because they are duplicates of their parent class (e.g. CGrenade and CBaseMonster have identical properties).
 
+Class inheritance isn't perfect. CBasePlayer should inherit from CBaseMonster, but the fields from CBaseMonster are spread apart in CBasePlayer, making it difficult to define header files where all the fields are at the correct offsets.
+
 # Setup for plugin developers
 1. Copy the [header files](https://github.com/wootguy/ApiGenerator/tree/master/include/sven) to your project.
 2. Add `#include "private_api.h"` to your source code. This includes all the private entity classes.
@@ -21,7 +23,7 @@ Example code:
 
 // example safety check
 bool is_valid_player(edict_t* plr) {
-    return plr && (plr->v.flags & FL_CLIENT) && plr->pvPrivateData;
+    return plr && plr->pvPrivateData && (plr->v.flags & FL_CLIENT);
 }
 
 void kill_this_player(edict_t* player_edict) {
@@ -34,25 +36,6 @@ void kill_this_player(edict_t* player_edict) {
     player_ent->m_flFallVelocity = 99999;
 }
 ```
-
-The generated header files don't include inheritance information because the ordering of inherited fields is not gauranteed to be the same for every compiler. However, you can tell by the shared fields what the hierarchy looks like. As of this writing (SC 5.25), this is what it appears to be:
-```
-CBaseEntity
-├─ CBaseAnimating
-│  ├─ CBaseMonster
-│  │  ├─ CBasePlayer
-│  │  ├─ CCineMonster
-├─ CBaseDelay
-│  ├─ CBaseToggle
-│  │  ├─ CBaseButton
-├─ CBasePlayerItem
-│  ├─ CBasePlayerWeapon
-├─ CBaseTank
-├─ CItemInventory
-├─ CPathTrack
-├─ CBaseToggle
-```
-So, it's safe to cast a CBasePlayer to a CBaseMonster for example. You can double check with angelscript if you want (`cast<CBaseMonster@>(playerEntity) !is null`). Many Sven Co-op entities are shared with the [HLSDK](https://github.com/ValveSoftware/halflife), so you can check there to see which types of entities can be cast to these classes (e.g. "func_door" -> CBaseToggle).
 
 # Updating headers
 The header files will likely become invalid when a new version of Sven Co-op is released, causing crashes for the plugins that use them. Follow these steps to generate new header files with the updated property offsets.

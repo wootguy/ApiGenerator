@@ -10,7 +10,6 @@ set(SOURCE_FILES
 	src/meta_init.h src/meta_init.cpp
 	src/meta_utils.h src/meta_utils.cpp
 	src/misc_utils.h src/misc_utils.cpp
-	src/EHandle.h src/EHandle.cpp
 )
 
 include_directories(src)
