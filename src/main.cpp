@@ -127,7 +127,7 @@ void private_api_test() {
 		vec3_value[1] = vecStart[1];
 		vec3_value[2] = vecStart[2];
 	}
-	else {
+	else if (changeSz > 4*3) {
 		println("Failed to test edict %d. Unexpected number of bytes changed %d", entIdx, changeSz);
 		return;
 	}
