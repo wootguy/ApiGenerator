@@ -37,6 +37,9 @@ void kill_this_player(edict_t* player_edict) {
 }
 ```
 
+
+Note that there are separate headers for Windows and Linux. The offsets for some class fields are different on Linux. You need add the appropriate folder to your header search path depending on which OS you're building for. 
+
 # Updating headers
 The header files will likely become invalid when a new version of Sven Co-op is released, causing crashes for the plugins that use them. Follow the steps below to generate new header files with the updated property offsets.
 
