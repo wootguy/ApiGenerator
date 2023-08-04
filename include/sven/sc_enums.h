@@ -155,11 +155,51 @@
 #define CLASS_TEAM4 19 // Is on Team 4
 #define CLASS_BARNACLE 99 // Is Barnacle
 
+// DMG
+#define DMG_GENERIC 0 // Generic damage.
+#define DMG_CRUSH 1 // Crush damage. By falling or moving object.
+#define DMG_BULLET 2 // Bullet. Shot.
+#define DMG_SLASH 4 // Slash. Cut, clawed, stabbed.
+#define DMG_BURN 8 // Burn. Heat burned.
+#define DMG_FREEZE 16 // Freeze. Frozen.
+#define DMG_FALL 32 // Fall. Fell too far.
+#define DMG_BLAST 64 // Blast. Explosive blast damage.
+#define DMG_CLUB 128 // Club. Crowbar, punch, headbutt.
+#define DMG_SHOCK 256 // Shock. Electric shock.
+#define DMG_SONIC 512 // Sonic. Sound pulse shockwave.
+#define DMG_ENERGYBEAM 1024 // Energy beam. Laser or other high energy beam.
+#define DMG_NEVERGIB 4096 // Never gib. With this bit OR'd in, no damage type will be able to gib victims upon death.
+#define DMG_ALWAYSGIB 8192 // Always gib. With this bit OR'd in, any damage type can be made to gib victims upon death.
+#define DMG_LAUNCH 67108864 // Launch. Launch into air.
+#define DMG_DROWN 16384 // Drown. Drowning.
+#define DMG_TIMEBASED 16760832 // Mash for time-based damage.
+#define DMG_PARALYZE 32768 // Paralyze. Slows affected creature down.
+#define DMG_NERVEGAS 65536 // Nerve gas. Nerve toxins, very bad.
+#define DMG_POISON 131072 // Poison. Blood poisoning.
+#define DMG_RADIATION 262144 // Radiation. Radiation exposure.
+#define DMG_DROWNRECOVER 524288 // Drown recover. Drowning recovery.
+#define DMG_ACID 1048576 // Acid. Toxic chemicals or acid burns.
+#define DMG_SLOWBURN 2097152 // Slow burn. In an oven.
+#define DMG_SLOWFREEZE 4194304 // Slow freeze. In a subzero freezer.
+#define DMG_MORTAR 8388608 // Mortar. Hit by air raid (done to distinguish grenade from mortar)
+#define DMG_SNIPER 16777216 // Sniper. Hit by a Sniper.
+#define DMG_MEDKITHEAL 33554432 // Medkit heal. Medkit healing.
+#define DMG_SHOCK_GLOW 134217728 // Shock glow. Flag for shock glow effect.
+#define DMG_GIB_CORPSE 993 // Gib corpse. These are the damage types that are allowed to gib corpses.
+#define DMG_SHOWNHUD 7815448 // Shown on HUD. These are the damage types that have clien hud art.
+
 // GIB
 #define GIB_NORMAL 0 // gib if entity was overkilled
 #define GIB_NEVER 1 // never gib, no matter how much death damage is done ( freezing, etc )
 #define GIB_ALWAYS 2 // always gib ( Houndeye Shock, Barnacle Bite )
 #define GIB_NOPENALTY 3 // No penalty applied to players that died
+
+// USE_TYPE
+#define USE_OFF 0 // Turns off an entity
+#define USE_ON 1 // Turns on an entity
+#define USE_SET 2 // Sets the state of an entity (use float parameter in Use)
+#define USE_TOGGLE 3 // Toggles the state of an entity
+#define USE_KILL 4 // Kills an entity
 
 // Bullet
 #define BULLET_NONE 0
