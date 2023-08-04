@@ -4,6 +4,7 @@ from pathlib import Path
 docs_path = 'docs'
 asgen_path = 'scripts/generated_props'
 headers_path = 'include/sven'
+as_plugin_output_path = '../../../../../svencoop/scripts/plugins/store/ApiGenerator'
 classes_to_generate = [
 	'CBaseEntity',
 	'CBaseDelay',
@@ -35,7 +36,9 @@ enums_to_generate = [
 	["EFFECTS", ""],
 	["FixAngleMode", ""],
 	["CLASS", ""],
+	["DMG", ""],
 	["GIB", ""],
+	["USE_TYPE", ""],
 	["Bullet", ""],
 	["AddPlayerItemResult", ""],
 	["HITGROUP", ""],
@@ -216,6 +219,7 @@ if not os.path.exists(docs_path):
 		print("- Run this script again")
 
 Path(asgen_path).mkdir(parents=True, exist_ok=True)
+Path(as_plugin_output_path).mkdir(parents=True, exist_ok=True)
 
 print("Generating angelscript plugin code for...")
 
