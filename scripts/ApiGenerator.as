@@ -249,6 +249,10 @@ void generateApis(CBasePlayer@ plr) {
 	g_reversed_data.resize(0);
 	g_classid = 0;
 	
+	dictionary keys;
+	keys["weight"] = "0"; // linux crashes without this
+	CItemInventory@ invEnt = cast<CItemInventory@>(g_EntityFuncs.CreateEntity("item_inventory", keys, true));
+	
 	// order is important here, it takes some guess work to figure out the hierarchy.
 	// if classes have duplicate fields between them then this probably needs updating.
 	// TODO: just do this in 2 passes. first one finds the field offsets, 2nd writes the
@@ -269,7 +273,7 @@ void generateApis(CBasePlayer@ plr) {
 					PvFinder("ammo_357", "CBasePlayerAmmo", CBasePlayerAmmoPv, null);
 			
 		PvFinder("func_tank", "CBaseTank", CBaseTankPv, null);
-		PvFinder("item_inventory", "CItemInventory", CItemInventoryPv, null);
+		PvFinder(invEnt, "CItemInventory", CItemInventoryPv, null);
 		PvFinder("item_battery", "CItem", CItemPv, null);
 		PvFinder("path_track", "CPathTrack", CPathTrackPv, null);
 		PvFinder("env_beam", "CBeam", CBeamPv, null);
@@ -304,15 +308,21 @@ void apiTestLoop(EHandle h_plr) {
 		return;
 	}
 	
-	//CItemInventory@ testEnt = cast<CItemInventory@>(g_EntityFuncs.CreateEntity("item_inventory", null, true));
-	//testEnt.m_szDisplayName = "test";
-	//g_EntityFuncs.Remove(testEnt);
+	dictionary keys;
+	keys["weight"] = "0";
+	
+	CItemInventory@ testEnt = cast<CItemInventory@>(g_EntityFuncs.CreateEntity("item_inventory", keys, true));
+	testEnt.m_szDisplayName = "test";
+	g_EntityFuncs.Remove(testEnt);
+	println("OK MADE IT");
 }
 
 void apiTest( const CCommand@ args ) {
 	CBasePlayer@ plr = g_ConCommandSystem.GetCurrentPlayer();
 	
-	g_Scheduler.SetInterval("apiTestLoop", 0.1f, 1, EHandle(plr));
+	
+	apiTestLoop(EHandle(plr));
+	//g_Scheduler.SetInterval("apiTestLoop", 0.1f, 1, EHandle(plr));
 }
 
 void apiGen( const CCommand@ args ) {
