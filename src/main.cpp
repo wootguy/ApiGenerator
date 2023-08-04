@@ -160,11 +160,13 @@ void testPlayer() {
 
 		//println("BOKEAY %d", testent->m_iFOV);
 	}
+
+	RETURN_META(MRES_IGNORED);
 }
 
 void PluginInit() {
-	g_engine_hooks.pfnPvAllocEntPrivateData = PvAllocEntPrivateData;
-	g_dll_hooks.pfnStartFrame = testPlayer;
+	//g_engine_hooks.pfnPvAllocEntPrivateData = PvAllocEntPrivateData;
+	//g_dll_hooks.pfnStartFrame = testPlayer;
 
 	REG_SVR_COMMAND("private_api_init", private_api_init);
 	REG_SVR_COMMAND("private_api_test", private_api_test);
