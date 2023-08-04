@@ -45,9 +45,10 @@ If any classes have been added/removed/renamed in the angelscript API, then you'
 1. Install [Metamod-p](https://github.com/wootguy/metamod-p/blob/master/README.md) and [Python](https://www.python.org/downloads/).
 2. [Download](https://github.com/wootguy/ApiGenerator/archive/refs/heads/master.zip) this project's source and extract to `Sven Co-op/svencoop_addon/scripts/plugins/ApiGenerator-master`.
 3. Run the game with the `-as_outputdocs` launch option to generate `asdocs.txt`. Move that file to the `ApiGenerator-master` folder.
-4. Run the python script. It will generate the angelscript docs and required code for the angelscript plugin.
-5. Compile the ApiGenerator metamod plugin and install it (See Compile Instructions section)
-6. Install the ApiGenerator angelscript plugin (see below)
+4. Run `ASDocGenerator.exe -i asdocs.txt -o docs` to generate HTML documentation.
+5. Run the python script. It will generate the angelscript docs and required code for the angelscript plugin.
+6. Compile the ApiGenerator metamod plugin and install it (See Compile Instructions section)
+7. Install the ApiGenerator angelscript plugin (see below)
 ```
     "plugin"
     {
@@ -55,7 +56,6 @@ If any classes have been added/removed/renamed in the angelscript API, then you'
         "script" "ApiGenerator-master/scripts/ApiGenerator"
     }
 ```
-7. Go to your `Sven Co-op/svencoop/scripts/plugins/store/` folder and create a folder named `ApiGenerator`
 8. Launch Sven Co-op, start any map, then type `developer 1; clear; .apigen` into the console.
 9. Header files should be output to the the folder created in step 7. If not, check the console for errors.
 10. Recompile your plugins using the new header files.
