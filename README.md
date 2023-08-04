@@ -45,7 +45,7 @@ If any classes have been added/removed/renamed in the angelscript API, then you'
 1. Install [Metamod-p](https://github.com/wootguy/metamod-p/blob/master/README.md) and [Python](https://www.python.org/downloads/).
 2. [Download](https://github.com/wootguy/ApiGenerator/archive/refs/heads/master.zip) this project's source and extract to `Sven Co-op/svencoop_addon/scripts/plugins/ApiGenerator-master`.
 3. Run the game with the `-as_outputdocs` launch option to generate `asdocs.txt`. Move that file to the `ApiGenerator-master` folder.
-4. Run `ASDocGenerator.exe -i asdocs.txt -o docs` to generate HTML documentation.
+4. Linux users: Run `ASDocGenerator.exe -i asdocs.txt -o docs` to generate HTML documentation on a windows PC and copy the `docs` folder to your `ApiGenerator-master` folder on the linux PC.
 5. Run the python script. It will generate the angelscript docs and required code for the angelscript plugin.
 6. Compile the ApiGenerator metamod plugin and install it (See Compile Instructions section)
 7. Install the ApiGenerator angelscript plugin (see below)
