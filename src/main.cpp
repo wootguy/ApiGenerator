@@ -2,7 +2,6 @@
 #include "misc_utils.h"
 #include "meta_utils.h"
 #include "main.h"
-#include "private_api.h"
 
 // Description of plugin
 plugin_info_t Plugin_info = {
@@ -165,7 +164,7 @@ void testPlayer() {
 }
 
 void PluginInit() {
-	//g_engine_hooks.pfnPvAllocEntPrivateData = PvAllocEntPrivateData;
+	g_engine_hooks.pfnPvAllocEntPrivateData = PvAllocEntPrivateData;
 	//g_dll_hooks.pfnStartFrame = testPlayer;
 
 	REG_SVR_COMMAND("private_api_init", private_api_init);
