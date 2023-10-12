@@ -232,7 +232,7 @@ public:
     virtual Vector EarPosition();
 
     // Returns this entity's body target for shooting.
-    virtual Vector BodyTarget(Vector posSrc);
+    virtual Vector BodyTarget(Vector* posSrc);
 
     // Returns this entity's illumination.
     virtual int Illumination();
@@ -243,7 +243,7 @@ public:
     virtual void f0_16();
 
     // Returns whether this entity is visible from the given position.
-    virtual bool FVisibleFromPos(Vector vecTarget, Vector vecStart);
+    virtual bool FVisibleFromPos(Vector* vecTarget, Vector* vecStart);
 
     // Returns whether this entity is facing the given entity, within the given view field.
     virtual bool IsFacing(entvars_t* pevTest, float flDotProduct);
