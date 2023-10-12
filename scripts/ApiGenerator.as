@@ -21,6 +21,8 @@ enum field_types {
 funcdef void pvPropSetter(CBaseEntity@ ent, TestValue);
 funcdef TestValue pvPropGetter(CBaseEntity@ ent);
 
+funcdef void pvFuncTester(CBaseEntity@ ent);
+
 // the result for a single class property
 class PvData {
 	PvProp@ prop;
@@ -105,7 +107,7 @@ class TestValue {
 	}
 }
 
-// info needed to find a single class property
+// info needed to find a class property and generate header code
 class PvProp {
 	string name;
 	int fieldtype;
@@ -187,13 +189,69 @@ class PvProp {
 	}
 }
 
+class PvFuncArg {
+	string type;
+	string ctype;
+	string name;
+	int size;
+	
+	PvFuncArg() {}
+	
+	PvFuncArg(string type, string ctype, string name, int size) {
+		this.type = type;
+		this.ctype = ctype;
+		this.name = name;
+		this.size = size;
+	}
+}
+
+// info needed to find a virtual class method and generate header code
+class PvFunc {
+	string name;
+	string retType;
+	string retTypeC;
+	string desc;
+	array<PvFuncArg> args;
+	pvFuncTester@ testFunc;
+	
+	int total_arg_bytes = 0;
+	int offset = -1; // found during testing
+	bool skipWrite; // don't write this func to the header (for ambiguous offsets)
+	string offsetShareName; // name of the function this one was disabled for
+	
+	PvFunc() {}
+	
+	PvFunc(string name, string retType, string retTypeC, string desc, array<PvFuncArg> args, pvFuncTester@ testFunc) {
+		this.name = name;
+		this.retType = retType;
+		this.retTypeC = retTypeC;
+		this.desc = desc;
+		this.args = args;
+		@this.testFunc = @testFunc;
+		
+		for (uint i = 0; i < args.size(); i++) {
+			total_arg_bytes += args[i].size;
+		}
+	}
+	
+	int expectedArgSize() {
+		int sz = 0;
+		for (uint k = 0; k < args.size(); k++) {
+			sz += args[k].size;
+		}
+		return sz;
+	}
+}
+
 void print(string text) { g_Game.AlertMessage( at_console, text); }
 void println(string text) { print(text + "\n"); }
 
 CClientCommand _apigen("apigen", "Generate metamod API", @apiGen );
+CClientCommand _apigenfull("apigenfull", "Generate metamod API", @apiGenFull );
 CClientCommand _apitest("apitest", "Generate metamod API", @apiTest );
 
-CConCommand@ apiResultCmd = @CConCommand( "private_api_result", "metamod response to a private api test", @private_api_result );
+CConCommand@ apiResultCmd = @CConCommand( "field_offset_result", "metamod response to a private api test", @field_offset_result );
+CConCommand@ apiResultCmd2 = @CConCommand( "vtable_offset_result", "metamod response to a private api test", @vtable_offset_result );
 
 // scan results from the metamod plugin
 int g_pv_offset = -1; // where data was changed
@@ -202,10 +260,16 @@ uint64 g_pv_result = 0; // value found, as an integer
 float g_pv_result_f = 0; // value found, as a float
 Vector g_pv_result_vec3 = Vector(0,0,0); // value(s) found, as a vector
 
+int g_vtable_offset = -1;
+
 int g_arr_idx = 0; // array index to test
 int g_classid = 0; // make sure unknown data has unique names when inheriting
 
 array<ReversedData> g_reversed_data; // used to exclude classes that are duplicates for CBaseEntity
+
+string autoStartFile = "scripts/plugins/store/ApiGenerator/_AUTOSTART";
+
+bool g_generate_vtables = false;
 
 void PluginInit() {
 	g_Module.ScriptInfo.SetAuthor( "w00tguy" );
@@ -217,8 +281,19 @@ void MapInit() {
 	g_Game.PrecacheOther("item_inventory");
 }
 
+void MapStart() {
+	File@ f = g_FileSystem.OpenFile( autoStartFile, OpenFile::READ);
+	
+	if (f !is null && f.IsOpen()) {
+		g_PlayerFuncs.ClientPrintAll(HUD_PRINTTALK, "Auto-start file detected. Resuming API generation.");
+		g_Scheduler.SetTimeout("generateApis", 1.0f);
+		g_generate_vtables = true;
+		f.Close();
+	}
+}
+
 // metamod calls this after scanning private entity data for changes
-void private_api_result( const CCommand@ args ) {	
+void field_offset_result( const CCommand@ args ) {
 	CBasePlayer@ plr = g_ConCommandSystem.GetCurrentPlayer();
 	
 	if (args.ArgC() == 0) {
@@ -241,11 +316,23 @@ void private_api_result( const CCommand@ args ) {
 	g_pv_size = atoi(args[5]);
 }
 
+// metamod calls this after checking if any virtual functions were called
+void vtable_offset_result( const CCommand@ args ) {	
+	CBasePlayer@ plr = g_ConCommandSystem.GetCurrentPlayer();
+	g_vtable_offset = atoi(args[1]);
+}
+
 void failsafe_ent_remove(EHandle h_ent) {
 	g_EntityFuncs.Remove(h_ent);
 }
 
-void generateApis(CBasePlayer@ plr) {
+void generateApis() {
+	CBasePlayer@ plr = cast<CBasePlayer@>(g_EntityFuncs.FindEntityByClassname(null, "player"));
+	if (plr is null) {
+		println("Failed to locate any player to test with");
+		return;
+	}
+
 	g_reversed_data.resize(0);
 	g_classid = 0;
 	
@@ -253,31 +340,37 @@ void generateApis(CBasePlayer@ plr) {
 	keys["weight"] = "0"; // linux crashes without this
 	CItemInventory@ invEnt = cast<CItemInventory@>(g_EntityFuncs.CreateEntity("item_inventory", keys, true));
 	
+	// once external script sees this. It will delete it and wait for it to appear again at the end of the test.
+	// if it takes longer than a second the process is killed, because it shouldn't take long to generate the api,
+	// so that must mean the game crashed
+	File@ testFile = g_FileSystem.OpenFile( "scripts/plugins/store/ApiGenerator/_deleteme.txt", OpenFile::WRITE);
+	testFile.Close();
+	
 	// order is important here, it takes some guess work to figure out the hierarchy.
 	// if classes have duplicate fields between them then this probably needs updating.
 	// TODO: just do this in 2 passes. first one finds the field offsets, 2nd writes the
 	//       headers with all classes searchable as parents.
-	PvFinder(plr, "CBaseEntity", CBaseEntityPv, null);
-		PvFinder("trigger_relay", "CBaseDelay", CBaseDelayPv, null);
-			PvFinder(plr, "CBaseAnimating", CBaseAnimatingPv, null);
-				PvFinder("func_door", "CBaseToggle", CBaseTogglePv, null);
-					PvFinder("func_button", "CBaseButton", CBaseButtonPv, null);
-					PvFinder("func_door", "CBaseDoor", CBaseDoorPv, null);
-					PvFinder(plr, "CBaseMonster", CBaseMonsterPv, null);
-						PvFinder(plr, "CBasePlayer", CBasePlayerPv, CBasePlayerPv_Special);
-						PvFinder("scripted_sequence", "CCineMonster", CCineMonsterPv, null);
-						PvFinder("grenade", "CGrenade", CGrenadePv, null);
+	PvFinder(plr, "CBaseEntity", CBaseEntityPv, null, CBaseEntityFuncs);
+		PvFinder("trigger_relay", "CBaseDelay", CBaseDelayPv, null, CBaseDelayFuncs);
+			PvFinder(plr, "CBaseAnimating", CBaseAnimatingPv, null, CBaseAnimatingFuncs);
+				PvFinder("func_door", "CBaseToggle", CBaseTogglePv, null, CBaseToggleFuncs);
+					PvFinder("func_button", "CBaseButton", CBaseButtonPv, null, CBaseButtonFuncs);
+					PvFinder("func_door", "CBaseDoor", CBaseDoorPv, null, CBaseDoorFuncs);
+					PvFinder(plr, "CBaseMonster", CBaseMonsterPv, null, CBaseMonsterFuncs);
+						PvFinder(plr, "CBasePlayer", CBasePlayerPv, CBasePlayerPv_Special, CBasePlayerFuncs);
+						PvFinder("scripted_sequence", "CCineMonster", CCineMonsterPv, null, CCineMonsterFuncs);
+						PvFinder("grenade", "CGrenade", CGrenadePv, null, CGrenadeFuncs);
 						
-				PvFinder("weapon_crowbar", "CBasePlayerItem", CBasePlayerItemPv, null);
-					PvFinder("weapon_crowbar", "CBasePlayerWeapon", CBasePlayerWeaponPv, null);
-					PvFinder("ammo_357", "CBasePlayerAmmo", CBasePlayerAmmoPv, null);
+				PvFinder("weapon_crowbar", "CBasePlayerItem", CBasePlayerItemPv, null, CBasePlayerItemFuncs);
+					PvFinder("weapon_crowbar", "CBasePlayerWeapon", CBasePlayerWeaponPv, null, CBasePlayerWeaponFuncs);
+					PvFinder("ammo_357", "CBasePlayerAmmo", CBasePlayerAmmoPv, null, CBasePlayerAmmoFuncs);
 			
-		PvFinder("func_tank", "CBaseTank", CBaseTankPv, null);
-		PvFinder(invEnt, "CItemInventory", CItemInventoryPv, null);
-		PvFinder("item_battery", "CItem", CItemPv, null);
-		PvFinder("path_track", "CPathTrack", CPathTrackPv, null);
-		PvFinder("env_beam", "CBeam", CBeamPv, null);
-		PvFinder("env_laser", "CLaser", CLaserPv, null);
+		PvFinder("func_tank", "CBaseTank", CBaseTankPv, null, CBaseTankFuncs);
+		PvFinder(invEnt, "CItemInventory", CItemInventoryPv, null, CItemInventoryFuncs);
+		PvFinder("item_battery", "CItem", CItemPv, null, CItemFuncs);
+		PvFinder("path_track", "CPathTrack", CPathTrackPv, null, CPathTrackFuncs);
+		PvFinder("env_beam", "CBeam", CBeamPv, null, CBeamFuncs);
+		PvFinder("env_laser", "CLaser", CLaserPv, null, CLaserFuncs);
 	
 	string outputFile = "scripts/plugins/store/ApiGenerator/private_api.h";
 	File@ f = g_FileSystem.OpenFile( outputFile, OpenFile::WRITE);
@@ -290,8 +383,13 @@ void generateApis(CBasePlayer@ plr) {
 	
 	f.Write("// This code was automatically generated by the ApiGenerator plugin.\n\n");
 	
+	f.Write("// declaring classes that might be used as function arguments or return types before they're defined\n");
+	for (uint i = 0; i < g_reversed_data.size(); i++) {
+		f.Write("class " + g_reversed_data[i].cname + ";\n");
+	}
+	
+	f.Write("\n#include \"sc_enums.h\"\n");
 	f.Write("#include \"EHandle.h\"\n");
-	f.Write("#include \"sc_enums.h\"\n");
 	for (uint i = 0; i < g_reversed_data.size(); i++) {
 		f.Write("#include \"" + g_reversed_data[i].cname + ".h\"\n");
 	}
@@ -299,6 +397,10 @@ void generateApis(CBasePlayer@ plr) {
 	f.Close();
 	
 	println("\nFinished writing private APIs for " + g_reversed_data.size() + " classes.");
+	
+	
+	@testFile = g_FileSystem.OpenFile( "scripts/plugins/store/ApiGenerator/_deleteme.txt", OpenFile::WRITE);
+	testFile.Close();
 }
 
 void apiTestLoop(EHandle h_plr) {
@@ -314,12 +416,10 @@ void apiTestLoop(EHandle h_plr) {
 	CItemInventory@ testEnt = cast<CItemInventory@>(g_EntityFuncs.CreateEntity("item_inventory", keys, true));
 	testEnt.m_szDisplayName = "test";
 	g_EntityFuncs.Remove(testEnt);
-	println("OK MADE IT");
 }
 
 void apiTest( const CCommand@ args ) {
 	CBasePlayer@ plr = g_ConCommandSystem.GetCurrentPlayer();
-	
 	
 	apiTestLoop(EHandle(plr));
 	//g_Scheduler.SetInterval("apiTestLoop", 0.1f, 1, EHandle(plr));
@@ -328,5 +428,13 @@ void apiTest( const CCommand@ args ) {
 void apiGen( const CCommand@ args ) {
 	CBasePlayer@ plr = g_ConCommandSystem.GetCurrentPlayer();
 	
-	generateApis(plr);
+	g_generate_vtables = false;
+	generateApis();
+}
+
+void apiGenFull( const CCommand@ args ) {
+	CBasePlayer@ plr = g_ConCommandSystem.GetCurrentPlayer();
+	
+	g_generate_vtables = true;
+	generateApis();
 }

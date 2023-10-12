@@ -152,6 +152,186 @@ prop_code = {
 		'getter': 'return <FIELD>;'
 	}
 }
+func_vals = {
+	'int&': {
+		'code': 'int i;',	# do we need to set up any local variables?
+		'argval': 'i',		# what value should angelscript use when calling the function?
+		"ctype": "int&",	# what type should C code use?
+		"size": 4			# how many bytes does this argument use in C++?
+	},
+	'bool': {
+		'argval': 'false',	
+		"ctype": "bool",
+		"size": 1		
+	},
+	'int8': {
+		'argval': '0',
+		"ctype": "char",
+		"size": 1
+	},
+	'int': {
+		'argval': '0',
+		"ctype": "int",
+		"size": 4
+	},
+	'int16': {
+		'argval': '0',
+		"ctype": "short",
+		"size": 2
+	},
+	'uint': {
+		'argval': '0',
+		"ctype": "unsigned int",
+		"size": 4
+	},
+	'TOGGLE_STATE': {
+		'argval': '0',
+		"ctype": "int",
+		"size": 4
+	},
+	'Activity': {
+		'argval': 'Activity(0)',
+		"ctype": "int",
+		"size": 4
+	},
+	'MONSTERSTATE': {
+		'argval': 'MONSTERSTATE(0)',
+		"ctype": "int",
+		"size": 4
+	},
+	'SCRIPTSTATE': {
+		'argval': 'SCRIPTSTATE(0)',
+		"ctype": "int",
+		"size": 4
+	},
+	'TANKBULLET': {
+		'argval': 'TANKBULLET(0)',
+		"ctype": "int",
+		"size": 4
+	},
+	'USE_TYPE': {
+		'argval': 'USE_TYPE(0)',
+		"ctype": "int",
+		"size": 4
+	},
+	'Bullet': {
+		'argval': 'Bullet(0)',
+		"ctype": "int",
+		"size": 4
+	},
+	'FireBulletsDrawMode': {
+		'argval': 'FireBulletsDrawMode(0)',
+		"ctype": "int",
+		"size": 4
+	},
+	'PLAYER_ANIM': {
+		'argval': 'PLAYER_ANIM(0)',
+		"ctype": "int",
+		"size": 4
+	},
+	'PlayerViewMode': {
+		'argval': 'PlayerViewMode(0)',
+		"ctype": "int",
+		"size": 4
+	},
+	'BeamType': {
+		'argval': 'BeamType(0)',
+		"ctype": "int",
+		"size": 4
+	},
+	'CLASS': {
+		'argval': 'CLASS(0)',
+		"ctype": "int",
+		"size": 4
+	},
+	'float': {
+		'argval': '0',
+		"ctype": "float",
+		"size": 4
+	},
+	'Vector': {
+		'argval': 'Vector(0,0,0)',
+		"ctype": "Vector",
+		"size": 12
+	},
+	'string': {
+		'argval': '""',
+		"ctype": "const char*",
+		"size": 4
+	},
+	'string_t': {
+		'argval': 'string_t(0)',
+		"ctype": "string_t",
+		"size": 4
+	},
+	'EHandle': {
+		'argval': 'null',
+		"ctype": "EHandle",
+		"size": 4
+	},
+	'const int': {
+		'argval': '0',
+		"ctype": "int",
+		"size": 4
+	},
+	'Vector&': {
+		'code': 'Vector vec;',
+		'argval': 'vec',
+		"ctype": "Vector",
+		"size": 12
+	},
+	'string&': {
+		'code': 'string str;',
+		'argval': 'str',
+		"ctype": "const char*",
+		"size": 4
+	},
+	'TraceResult&': {
+		'code': 'TraceResult tr;',
+		'argval': 'tr',
+		"ctype": "TraceResult*",
+		"size": 4
+	},
+	'float&': {
+		'code': 'float f;',
+		'argval': 'f',
+		"ctype": "float&",
+		"size": 4
+	},
+	'size_t': {
+		'argval': '0',
+		"ctype": "size_t",
+		"size": 4
+	},
+	'ItemInfo&': {
+		'code': 'ItemInfo iteminfo;',
+		'argval': 'iteminfo',
+		"ctype": "ItemInfo&",
+		"size": 4
+	},
+	'AddPlayerItemResult': {
+		'argval': '0',
+		"ctype": "int",
+		"size": 4
+	},
+	'EHandle&': {
+		'argval': 'EHandle(g_EntityFuncs.Instance(0))',
+		"ctype": "EHandle&",
+		"size": 4
+	},
+	'int8&': {
+		'code': 'int8 i;',
+		'argval': 'i',
+		"ctype": "int8&",
+		"size": 4
+	},
+	'Waypoint&': {
+		'code': 'Waypoint w;',
+		'argval': 'w',
+		"ctype": "Waypoint&",
+		"size": 4
+	}
+}
 
 # value names that are in the HLSDK and will conflict with the sven names
 ignore_enum_values = [
@@ -208,6 +388,40 @@ ignore_enum_values = [
 	"SVC_INTERMISSION"
 ]
 
+ignore_func_names = [
+	# cast functions (why are these listed?)
+	'opImplCast',
+	'opCast',
+	
+	# these aren't exposed to angelscript but are still in the documentation
+	'GetUserData',
+	'ClearUserData',
+	
+	# we know these aren't virtual (see the hlsdk)
+	'edict',
+	'entindex',
+	'Intersects',
+	'MakeDormant',
+	'IsDormant',
+	'GetOrigin',
+	'GetClassname',
+	'GetTargetname',
+	
+	# useless functions. Don't waste time on them
+	'opEquals',
+	'SUB_DoNothing',
+	'SUB_Remove',
+	'KeyValue', # there's a dll func in metamod for this
+	
+	# these share offsets with other functions. Enable these again if the generator is able to resolve that,
+	# or not because these don't seem very useful
+	'SetOrigin',
+	'SUB_StartFadeOut',
+	'SetObjectCollisionBox',
+	'IRelationshipByClass',
+	'SUB_CallUseToggle'
+]
+
 if not os.path.exists(docs_path):
 	if os.path.exists('asdocs.txt') and (os.path.exists('ASDocGenerator.exe') or os.path.exists('ASDocGenerator')):
 		print("Angelscript docs are missing. Generating them from the asdocs.txt file")
@@ -225,6 +439,56 @@ print("Generating angelscript plugin code for...")
 
 include_code = open(os.path.join(asgen_path, 'includes.as'), 'w')
 
+func_name_counts = {}
+virtual_func_names = set({})
+
+# on the first pass, just look for functions that appear in multiple classes.
+# these will likely be virtual functions and so can be found by the vtable replacement method
+# anything else is probably a normal method and not easy to find the address for
+for class_to_gen in classes_to_generate:	
+	with open(os.path.join(docs_path, class_to_gen + '.htm')) as htm:
+		is_parsing_funcs = False
+		next_td_is_decl = False
+		
+		for line in htm.readlines():
+			if '<h2>Methods</h2>' in line:
+				is_parsing_funcs = True
+			if '<h2>Properties</h2>' in line:
+				break
+						
+			if is_parsing_funcs:
+				if '<tr>' in line:
+					next_td_is_decl = True
+				if '<td>' in line:
+					if next_td_is_decl:
+						next_td_is_decl = False
+						func = line[line.find("<td>")+len("<td>"):line.find("</td>")]
+						
+						first_space = func.find(" ")
+						ret_type = func[:first_space]
+						func = func[first_space+1:]
+						
+						if ret_type == "const":
+							first_space = func.find(" ")
+							ret_type = func[:first_space]
+							func = func[first_space+1:]
+						
+						args_begin = func.find("(")
+						func_name = func[:args_begin]
+						
+						if func_name in ignore_func_names:
+							continue
+							
+						if func_name not in func_name_counts:
+							func_name_counts[func_name] = 1
+						else:
+							func_name_counts[func_name] += 1
+
+for key, value in func_name_counts.items():
+	if value > 1:
+		virtual_func_names.add(key)
+
+# Now generate property and function information for angelscript
 for class_to_gen in classes_to_generate:
 	print(class_to_gen)
 	asClass = class_to_gen + "Pv"
@@ -232,32 +496,119 @@ for class_to_gen in classes_to_generate:
 	
 	with open(os.path.join(docs_path, class_to_gen + '.htm')) as htm:
 		with open(os.path.join(asgen_path, asClass + '.as'), 'w') as code:
+			is_parsing_funcs = False
 			is_parsing_props = False
-			next_td_is_prop = False
+			next_td_is_decl = False
 			
 			# not using a DOM parsing library because the doc format is simple and static
 			props = []
+			funcs = []
 			for line in htm.readlines():
+				if '<h2>Methods</h2>' in line:
+					is_parsing_funcs = True
+					is_parsing_props = False
 				if '<h2>Properties</h2>' in line:
 					is_parsing_props = True
+					is_parsing_funcs = False
 					
-				if not is_parsing_props:
-					continue
-					
-				if '<tr>' in line:
-					next_td_is_prop = True
-				if '<td>' in line:
-					if next_td_is_prop:
-						next_td_is_prop = False
-						prop = line[line.find("<td>")+len("<td>"):line.find("</td>")].split()
-						
-						prop_type = " ".join(prop[0:-1])
-						prop_name = prop[-1]
-						
-						props.append([prop_type, prop_name, ""])
-					elif len(props) > 0:
-						desc = line[line.find("<td>")+len("<td>"):line.find("</td>")].replace('"', '\\"')
-						props[-1][2] = desc
+				if is_parsing_props:
+					if '<tr>' in line:
+						next_td_is_decl = True
+					if '<td>' in line:
+						if next_td_is_decl:
+							next_td_is_decl = False
+							prop = line[line.find("<td>")+len("<td>"):line.find("</td>")].split()
+							
+							prop_type = " ".join(prop[0:-1])
+							prop_name = prop[-1]
+							
+							props.append([prop_type, prop_name, ""])
+						elif len(props) > 0:
+							desc = line[line.find("<td>")+len("<td>"):line.find("</td>")].replace('"', '\\"')
+							props[-1][2] = desc
+							
+				if is_parsing_funcs:
+					if '<tr>' in line:
+						next_td_is_decl = True
+					if '<td>' in line:
+						if next_td_is_decl:
+							next_td_is_decl = False
+							func = line[line.find("<td>")+len("<td>"):line.find("</td>")]
+							
+							first_space = func.find(" ")
+							ret_type = func[:first_space]
+							func = func[first_space+1:]
+							
+							if ret_type == "const":
+								first_space = func.find(" ")
+								ret_type = func[:first_space]
+								func = func[first_space+1:]
+							
+							args_begin = func.find("(")
+							func_name = func[:args_begin]
+							args = func[args_begin+1:func.find(")")].split(",")
+							
+							if func_name not in virtual_func_names:
+								continue
+							
+							if class_to_gen != 'CBaseEntity':
+								continue # work needed to find vtables in derived classes
+							
+							for idx, arg in enumerate(args):
+								if len(arg) == 0:
+									continue
+								
+								# strip qualifiers that don't matter for testing
+								arg = arg.replace("const", "")
+								arg = arg.replace(" in ", "")
+								arg = arg.replace(" out ", "")
+								arg = arg.replace(" inout ", "")
+								
+								# convert html entities
+								arg = arg.replace("&lt;", "<")
+								arg = arg.replace("&gt;", ">")
+								
+								# strip default values
+								if '=' in arg:
+									arg = arg[:arg.find("=")]
+								
+								arg = arg.strip()
+								
+								endType = arg.find(" ")
+								if endType == -1:
+									endType = arg.find("&")
+								if endType == -1:
+									endType = arg.find("@")
+								if endType == -1:
+									print("Failed to find separator for argument type and name: %s" % args[idx])
+									continue
+								
+								argType = arg[:endType+1].strip()
+								argName = arg[endType+1:]
+								
+								args[idx] = (argType, argName)
+								
+							if len(args) == 1 and args[0] == '':
+								args = []
+								
+							#print("Got func: %s %s(%s)" % (ret_type, func_name, args))
+							
+							func_data = [func_name, ret_type, "", args]
+							
+							# if multiple funcs have the same name, keep the function that has the most number of arguments
+							skip_func = False
+							for idx, f in enumerate(funcs):
+								if f[0] == func_name:
+									if len(f[3]) >= len(args):
+										skip_func = True
+									else:
+										funcs[idx] = func_data
+										
+							if not skip_func:
+								funcs.append(func_data)
+						elif len(funcs) > 0:
+							desc = line[line.find("<td>")+len("<td>"):line.find("</td>")].replace('"', '\\"')
+							funcs[-1][2] = desc
 			
 			code.write("// This code is automatically generated.\n")
 			code.write("// Update the python script instead of editing this directly.\n\n")
@@ -288,6 +639,75 @@ for class_to_gen in classes_to_generate:
 				code.write("\t\tfunction(ent, value) { " + setter + " }\n")
 				
 				if (idx < len(props)-1):
+					code.write("\t),\n")
+				else:
+					code.write("\t)\n")
+			
+			code.write("};\n")
+			
+			code.write("\narray<PvFunc> " + class_to_gen + "Funcs = {\n")
+			
+			for idx, func in enumerate(funcs):
+				func_name = func[0]
+				ret_type = func[1]
+				desc = func[2]
+				args = func[3]
+				
+				ctype = 'unknown_type'
+				if ret_type[-1] == "@":
+					ctype = ret_type[:-1] + "*"
+				elif ret_type == "void":
+					ctype = "void"
+				elif ret_type in func_vals:
+					ctype = func_vals[ret_type]['ctype']
+				else:
+					print("Unknown func return type '%s'" % ret_type)
+				
+				code.write('\tPvFunc("' + func_name + '", "' + ret_type + '", "' + ctype + '", "' + desc + '",\n')
+				
+				cast_code = "cast<" + class_to_gen + "@>(ent)"
+				if class_to_gen == "CBaseEntity":
+					cast_code = "ent"
+					
+				func_call = cast_code + "." + func_name + "("
+				local_vars_code = ""
+				unique_locals = set({})
+				
+				code.write("\t\t{")
+				for idx2, arg in enumerate(args):
+					argtype = arg[0]
+				
+					argval = "0"
+					argsz = 4
+					ctype = "unknown_type"
+					if arg[0][-1] == "@":
+						argval = "null"
+						argsz = 4
+						ctype = arg[0][:-1] + "*"
+					elif arg[0] in func_vals:
+						argval = func_vals[argtype]['argval']
+						argsz = func_vals[argtype]['size']
+						ctype = func_vals[argtype]['ctype']
+					else:
+						print("Unknown func arg type '%s'" % arg[0])
+					
+					if argtype in func_vals and 'code' in func_vals[argtype] and argtype not in unique_locals:
+						local_vars_code += func_vals[argtype]['code'] + " "
+						unique_locals.add(argtype)
+					
+					func_call += argval
+					
+					code.write('PvFuncArg("' + arg[0] + '", "' + ctype + '", "' + arg[1] + '", ' + ('%d' % argsz) + ')')
+					if idx2 < len(args)-1:
+						code.write(', ')
+						func_call += ', '
+						
+				code.write("},\n")
+				func_call += ");"
+				
+				code.write("\t\tfunction(ent) { " + local_vars_code + func_call + " }\n")
+				
+				if (idx < len(funcs)-1):
 					code.write("\t),\n")
 				else:
 					code.write("\t)\n")
