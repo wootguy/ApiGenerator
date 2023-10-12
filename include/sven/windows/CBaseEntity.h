@@ -224,20 +224,16 @@ public:
     virtual bool FBecomeProne(CBaseEntity* pOther);
 
     // Returns this entity's center.
-    // These parameters are likely wrong. The expected parameter list adds up to 0 bytes but 1 are required.
-    virtual Vector Center(char u0=0);
+    virtual Vector Center();
 
     // Returns this entity's eye position.
-    // These parameters are likely wrong. The expected parameter list adds up to 0 bytes but 1 are required.
-    virtual Vector EyePosition(char u0=0);
+    virtual Vector EyePosition();
 
     // Returns this entity's ear position.
-    // These parameters are likely wrong. The expected parameter list adds up to 0 bytes but 1 are required.
-    virtual Vector EarPosition(char u0=0);
+    virtual Vector EarPosition();
 
     // Returns this entity's body target for shooting.
-    // These parameters are likely wrong. The expected parameter list adds up to 12 bytes but 3 are required.
-    virtual Vector BodyTarget( /*Vector posSrc*/ short u0=0, char u1=0);
+    virtual Vector BodyTarget(Vector* posSrc);
 
     // Returns this entity's illumination.
     virtual int Illumination();
@@ -248,8 +244,7 @@ public:
     virtual bool FVisible(CBaseEntity* pEntity, bool fIgnoreGlass);
 
     // Returns whether this entity is visible from the given position.
-    // These parameters are likely wrong. The expected parameter list adds up to 24 bytes but 3 are required.
-    virtual bool FVisibleFromPos( /*Vector vecTarget, Vector vecStart*/ short u0=0, char u1=0);
+    virtual bool FVisibleFromPos(Vector* vecTarget, Vector* vecStart);
 
     // Returns whether this entity is facing the given entity, within the given view field.
     virtual bool IsFacing(entvars_t* pevTest, float flDotProduct);
