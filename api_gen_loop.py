@@ -3,6 +3,7 @@ import os, subprocess, time, psutil, sys
 dat_folder = "svencoop/scripts/plugins/store/ApiGenerator/"
 
 os.chdir("../../../../") # up to Sven Co-op folder
+test_map = "hl_c16_a4" # choose something small that loads quickly
 
 # automatically start api generation when map starts
 file = open(os.path.join(dat_folder, '_AUTOSTART'), 'w+')
@@ -19,10 +20,10 @@ while True:
 	
 	if os.name == "nt":
 		program_path = "svencoop.exe"
-		arguments = ["+map", "empty", "+developer", "1", "-dll", "addons/metamod/dlls/metamod.dll"]
+		arguments = ["+map", map, "+developer", "1", "-dll", "addons/metamod/dlls/metamod.dll"]
 	else:
 		program_path = "steam"
-		arguments = ["-applaunch", "225840", "+map", "empty", "+developer", "1", "-dll", "addons/metamod/dlls/metamod.so"]
+		arguments = ["-applaunch", "225840", "+map", map, "+developer", "1", "-dll", "addons/metamod/dlls/metamod.so"]
 	
 	process = subprocess.Popen([program_path] + arguments)
 	pid = process.pid
