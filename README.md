@@ -1,13 +1,7 @@
 # ApiGenerator
 This is a combination of server plugins that reverse engineers the entity classes in Sven Co-op. The result is a set of header files that you can use for developing metamod plugins that need game-specific entity data.
 
-How it works:
-1. A list of private properties is created from the angelscript documentation.
-2. The angelscript plugin changes a private property value in an entity, then calls a function in the metamod plugin.
-3. Metamod scans for any changes in the edict's `pvPrivateData`, then returns a byte offset of where it thinks the private field is located.
-4. Angelscript validates what metamod thinks, orders the located fields by offset, then fills in any gaps with byte arrays.
-
-Class methods are not included, but a lot of the code might be similar to the [HLSDK](https://github.com/ValveSoftware/halflife).
+Most class methods are not included, but a lot of the code might be similar to the [HLSDK](https://github.com/ValveSoftware/halflife).
 
 Some classes that you can see in the [angelscript docs](https://baso88.github.io/SC_AngelScript/docs/Classes.htm) are excluded here because they are duplicates of their parent class (e.g. CGrenade and CBaseMonster have identical properties).
 
@@ -80,3 +74,20 @@ mkdir build; cd build
 cmake .. -DCMAKE_BUILD_TYPE=RELEASE
 make
 ```
+
+# How it works
+Private properties:
+1. A list of private properties is created from the angelscript documentation.
+2. The angelscript plugin changes a private property value in an entity, then calls a function in the metamod plugin.
+3. Metamod scans for any changes in the edict's `pvPrivateData`, then returns a byte offset of where it thinks the private field is located.
+4. Angelscript validates what metamod thinks, orders the located fields by offset, then fills in any gaps with byte arrays.
+
+Virtual functions:
+1. A list of possibly virtual functions are created from the angelscript documentation (any function shared with more than one class).
+2. Angelscript creates the appropriate entity type, then tells metamod to prepare it for a function call. Metamod receives an entity index and a guess on for which function arguments are needed.
+3. Metamod replaces the entity vtable with one that redirects all virtual function calls to test functions with known offsets.
+5. On a successful call, metamod returns the function index that was called. Angelscript uses this offset to write virtual functions in order, in the header file.
+
+Angelscript does not know the size/count of function arguments nor return values. The script brute forces every possible combination, causing lots of crashes.  
+
+The vtable for CBaseEntity is simple. It's a pointer to an array of function pointers, where the order matches the order declared in the header. The vtable layout is unknown for derived classes.
