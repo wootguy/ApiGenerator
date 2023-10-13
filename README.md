@@ -61,7 +61,9 @@ If any classes have been added/removed/renamed in the angelscript API, then you'
 ```
 8. Launch Sven Co-op, start any map, then type `developer 1; clear; .apigen` into the console.
 9. Header files should be output to the the folder created in step 7. If not, check the console for errors.
-10. Recompile your plugins using the new header files.
+10. To generate headers with virtual functions, run the api_gen_loop.py script. This process may take hours and the game will crash hundreds of times.
+    - After the headers are generated, you'll need to manually inspect and test any functions that have unknown arguments (there will be comments in the header files). See the `test_pv` function for example code.
+    - This process is long because the script does not know the size of arguments for any virtual functions. Calling with the wrong size of arguments causes stack corruption, crashing the game. The script tries dozens of combinations for every function before giving up.
 
 # Compile Instructions
 Open a command prompt in the root folder of the project and follow instructions below to build the ApiGenerator metamod plugin.
