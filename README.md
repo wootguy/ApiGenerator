@@ -43,7 +43,7 @@ If any classes have been added/removed/renamed in the angelscript API, then you'
 2. [Download](https://github.com/wootguy/ApiGenerator/archive/refs/heads/master.zip) this project's source and extract to `Sven Co-op/svencoop_addon/scripts/plugins/ApiGenerator-master`.
 3. Run the game with the `-as_outputdocs` launch option to generate `asdocs.txt`. Move that file to the `ApiGenerator-master` folder.
 4. Linux users: Run `ASDocGenerator.exe -i asdocs.txt -o docs` to generate HTML documentation on a windows PC and copy the `docs` folder to your `ApiGenerator-master` folder on the linux PC.
-5. Run the python script. It will generate the angelscript docs and required code for the angelscript plugin.
+5. Run `as_plugin_codegen.py`. It will generate the angelscript docs and required code for the angelscript plugin.
 6. Compile the ApiGenerator metamod plugin and install it (See Compile Instructions section)
 7. Install the ApiGenerator angelscript plugin (see below)
 ```
@@ -56,6 +56,7 @@ If any classes have been added/removed/renamed in the angelscript API, then you'
 8. Launch Sven Co-op, start any map, then type `developer 1; clear; .apigen` into the console.
 9. Header files should be output to the the folder created in step 7. If not, check the console for errors.
 10. To generate headers with virtual functions, run the api_gen_loop.py script. This process may take hours and the game will crash hundreds of times.
+    - You can check progress in `svencoop/scripts/plugins/store/ApiGenerator/_CBaseEntity_vtable.txt`. That file should be updated every time the game crashes. If not, something is wrong with the python script probably (delay timers are too short, for example). If the game isn't crashing at all, then check the console for errors with the angelscript plugin.
     - After the headers are generated, you'll need to manually inspect and test any functions that have unknown arguments (there will be comments in the header files). See the `test_pv` function for example code.
     - This process is long because the script does not know the size of arguments for any virtual functions. Calling with the wrong size of arguments causes stack corruption, crashing the game. The script tries dozens of combinations for every function before giving up.
 
