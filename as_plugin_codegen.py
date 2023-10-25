@@ -62,7 +62,8 @@ enums_to_generate = [
 	["HUD_SPR", ""],
 	["HUD_NUM", ""],
 	["HUD_TIME", ""],
-	["NetworkMessageType", "MSG_"]
+	["NetworkMessageType", "MSG_"],
+	["FCAP", ""]
 ]
 
 prop_code = {
