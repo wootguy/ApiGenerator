@@ -519,3 +519,15 @@
 #define MSG_TimeDisplay 143 // User message
 #define MSG_UpdateTime 144 // User message
 #define MSG_VModelPos 145 // User message
+
+// FCAP
+#define FCAP_CUSTOMSAVE 1 // Custom save method
+#define FCAP_ACROSS_TRANSITION 2 // Across transition
+#define FCAP_MUST_SPAWN 4 // Must spawn
+#define FCAP_DONT_SAVE -2147483648 // Don't save
+#define FCAP_IMPULSE_USE 8 // Impulse use
+#define FCAP_CONTINUOUS_USE 16 // Continuous use
+#define FCAP_ONOFF_USE 32 // On/off use
+#define FCAP_DIRECTIONAL_USE 64 // Directional use
+#define FCAP_MASTER 128 // Is a master
+#define FCAP_FORCE_TRANSITION 128 // Force transition
